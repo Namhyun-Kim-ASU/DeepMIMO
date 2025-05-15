@@ -44,6 +44,7 @@ docs/manual_full.ipynb
 # Gitignore Defaults
 __pycache__/
 **/__pycache__/*
+**/.DS_Store
 *.py[cod]
 *$py.class
 *.so
