@@ -30,6 +30,7 @@ conversion_errors.json
 scripts/b2_direct_upload.py
 # scripts/pipeline_runner.py
 logging_*.txt
+**/.ipynb_checkpoints/
 
 #   For building visualizations
 building_*
