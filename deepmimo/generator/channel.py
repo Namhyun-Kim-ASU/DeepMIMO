@@ -2,7 +2,7 @@
 Channel module for DeepMIMO.
 
 This module provides functionality for MIMO channel generation, including:
-- Channel parameter management through the ChannelGenParameters class
+- Channel parameter management through the ChannelParameters class
 - OFDM path generation and verification 
 - Channel matrix computation
 
@@ -17,7 +17,7 @@ from copy import deepcopy
 from .. import consts as c
 from ..general_utils import DotDict, compare_two_dicts
 
-class ChannelGenParameters(DotDict):
+class ChannelParameters(DotDict):
     """Class for managing channel generation parameters.
     
     This class provides an interface for setting and accessing various parameters
@@ -75,7 +75,7 @@ class ChannelGenParameters(DotDict):
         if data is not None:
             self.update(data)
 
-    def validate(self, n_ues: int) -> 'ChannelGenParameters':
+    def validate(self, n_ues: int) -> 'ChannelParameters':
         """Validate channel generation parameters.
         
         This method checks that channel generation parameters are valid and
@@ -85,13 +85,13 @@ class ChannelGenParameters(DotDict):
             n_ues (int): Number of UEs to validate against
             
         Returns:
-            ChannelGenParameters: Self for method chaining
+            ChannelParameters: Self for method chaining
 
         Raises:
             ValueError: If parameters are invalid or inconsistent
         """
         # Notify the user if some keyword is not used (likely set incorrectly)
-        additional_keys = compare_two_dicts(self, ChannelGenParameters())
+        additional_keys = compare_two_dicts(self, ChannelParameters())
         if len(additional_keys):
             print('The following parameters seem unnecessary:')
             print(additional_keys)

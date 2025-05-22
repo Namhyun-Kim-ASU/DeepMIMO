@@ -28,7 +28,7 @@ from .dataset import Dataset, MacroDataset
 from ..materials import MaterialList
 
 # Channel generation
-from .channel import ChannelGenParameters
+from .channel import ChannelParameters
 
 # Scenario management
 from ..api import download
@@ -53,7 +53,7 @@ def generate(scen_name: str, load_params: Dict[str, Any] = {},
     dataset = load(scen_name, **load_params)
     
     # Create channel generation parameters
-    ch_params = ch_gen_params if ch_gen_params else ChannelGenParameters()
+    ch_params = ch_gen_params if ch_gen_params else ChannelParameters()
     
     # Compute channels - will be propagated to all child datasets if MacroDataset
     _ = dataset._compute_channels(ch_params)

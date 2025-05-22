@@ -38,7 +38,7 @@ from .generator.geometry import (
 )
 
 # Channel parameters
-from .generator.channel import ChannelGenParameters
+from .generator.channel import ChannelParameters
 
 from .converter.converter import convert
 from .info import info
@@ -89,7 +89,7 @@ __all__ = [
     'info',
     'load',
     'Dataset',
-    'ChannelGenParameters',
+    'ChannelParameters',
     
     # TX/RX handling
     'TxRxSet',

@@ -97,7 +97,7 @@ def generate_v4_dataset(scen_name: str, params: Dict[str, Any]):
     dataset = dm.load(scen_name, **load_params)
     
     # Configure channel parameters
-    ch_params = dm.ChannelGenParameters()
+    ch_params = dm.ChannelParameters()
     ch_params.num_paths = params['num_paths']
     ch_params.ofdm.subcarriers = params['subcarriers']
     ch_params.ue_antenna.shape = params['antenna_shape']

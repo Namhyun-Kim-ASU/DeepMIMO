@@ -32,7 +32,7 @@ except FileNotFoundError:
 # Theme selection
 # ----------------------------------------------------------------------------------------
 # Set this to 'furo' or 'sphinx_rtd_theme' to switch themes
-THEME = 'sphinx_rtd_theme'
+THEME = 'furo'
 
 # ----------------------------------------------------------------------------------------
 # Extensions
@@ -108,10 +108,13 @@ html_show_sphinx = False
 html_show_sourcelink = False
 html_show_copyright = True
 
-html_sidebars = {
-    '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html'],
-}
+# Sidebar
+if THEME == 'sphinx_rtd_theme':
+    html_sidebars = {
+        '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html'],
+    }
 
+# Theme options
 if THEME == 'furo':
     # Furo theme configuration
     html_theme_options = {
@@ -162,9 +165,6 @@ if THEME == 'furo':
             "color-admonition-background": "#141414",
         },
 
-        # Other settings
-        # "announcement": "This is the latest version of DeepMIMO documentation.",
-        "show_toc_level": 4
     }
 
 elif THEME == 'sphinx_rtd_theme':

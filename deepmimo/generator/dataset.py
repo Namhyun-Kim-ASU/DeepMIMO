@@ -41,7 +41,7 @@ from ..info import info
 from .visualization import plot_coverage, plot_rays
 
 # Channel generation
-from .channel import _generate_MIMO_channel, ChannelGenParameters
+from .channel import _generate_MIMO_channel, ChannelParameters
 
 # Antenna patterns and geometry
 from .ant_patterns import AntennaPattern
@@ -194,14 +194,14 @@ class Dataset(DotDict):
     # 2. Channel Computations
     ###########################################
 
-    def set_channel_params(self, params: Optional[ChannelGenParameters] = None) -> None:
+    def set_channel_params(self, params: Optional[ChannelParameters] = None) -> None:
         """Set channel generation parameters.
         
         Args:
             params: Channel generation parameters. If None, uses default parameters.
         """
         if params is None:
-            params = ChannelGenParameters()
+            params = ChannelParameters()
             
         params.validate(self.n_ue)
         
@@ -221,7 +221,7 @@ class Dataset(DotDict):
         
         return params
     
-    def compute_channels(self, params: Optional[ChannelGenParameters] = None) -> np.ndarray:
+    def compute_channels(self, params: Optional[ChannelParameters] = None) -> np.ndarray:
         """Compute MIMO channel matrices for all users.
         
         This is the main public method for computing channel matrices. It handles all the
@@ -236,14 +236,14 @@ class Dataset(DotDict):
         
         Args:
             params: Channel generation parameters. If None, uses default parameters.
-                   See ChannelGenParameters class for details.
+                   See ChannelParameters class for details.
             
         Returns:
             numpy.ndarray: MIMO channel matrix with shape [n_users, n_rx_ant, n_tx_ant, n_subcarriers]
                           if freq_domain=True, otherwise [n_users, n_rx_ant, n_tx_ant, n_paths]
         """
         if params is None:
-            params = ChannelGenParameters() if self.ch_params is None else self.ch_params
+            params = ChannelParameters() if self.ch_params is None else self.ch_params
 
         self.set_channel_params(params)
 

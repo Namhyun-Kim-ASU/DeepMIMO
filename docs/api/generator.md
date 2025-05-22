@@ -74,7 +74,7 @@ For detailed examples of loading, see the <a href="../manual_full.html#detailed-
 
 ## Generate Channels
 
-The `ChannelGenParameters` class manages parameters for MIMO channel generation.
+The `ChannelParameters` class manages parameters for MIMO channel generation.
 
 ```python
 import deepmimo as dm
@@ -83,7 +83,7 @@ import deepmimo as dm
 dataset = dm.load('asu_campus_3p5')
 
 # Instantiate channel parameters
-params = dm.ChannelGenParameters()
+params = dm.ChannelParameters()
 
 # Configure BS antenna array
 params.bs_antenna.shape = np.array([8, 1])  # 8x1 array
@@ -120,7 +120,7 @@ For detailed examples of generating channels, see the <a href="../manual_full.ht
 | `ofdm.bandwidth` | 10e6 | OFDM bandwidth (Hz) |
 
 ```{eval-rst}
-.. autoclass:: deepmimo.generator.channel.ChannelGenParameters
+.. autoclass:: deepmimo.generator.channel.ChannelParameters
    :members:
    :undoc-members:
    :show-inheritance:

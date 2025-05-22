@@ -60,7 +60,7 @@ dataset = dm.load(scen_name, **load_params)
 # V4 from Dataset
 
 # Create channel generation parameters
-ch_params = dm.ChannelGenParameters()
+ch_params = dm.ChannelParameters()
 
 # Using direct dot notation for parameters
 # ch_params.bs_antenna.rotation = np.array([30,40,30])

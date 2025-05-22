@@ -4,7 +4,7 @@ __all__ = [
     'generate',
     'load',
     'Dataset',
-    'ChannelGenParameters',
+    'ChannelParameters',
     'plot_coverage',
     'plot_rays',
     'plot_power_discarding',
