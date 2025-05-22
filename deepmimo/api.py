@@ -812,7 +812,7 @@ def download(scenario_name: str, output_dir: Optional[str] = None) -> Optional[s
 
     return output_path 
 
-def search(query: Dict) -> Optional[List[str]]:
+def search(query: Optional[Dict] = None) -> Optional[List[str]]:
     """
     Search for scenarios in the DeepMIMO database.
 
@@ -842,6 +842,8 @@ def search(query: Dict) -> Optional[List[str]]:
     Returns:
         Dict containing count and list of matching scenario names if successful, None otherwise
     """
+    if query is None:
+        query = {}
     try:
         response = requests.post(f"{API_BASE_URL}/api/search/scenarios", json=query)
         response.raise_for_status()
