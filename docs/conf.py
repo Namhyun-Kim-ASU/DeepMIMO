@@ -32,7 +32,7 @@ except FileNotFoundError:
 # Theme selection
 # ----------------------------------------------------------------------------------------
 # Set this to 'furo' or 'sphinx_rtd_theme' to switch themes
-THEME = 'furo'
+THEME = 'sphinx_rtd_theme'
 
 # ----------------------------------------------------------------------------------------
 # Extensions
@@ -94,7 +94,7 @@ suppress_warnings = ['myst.domains']
 # Templates / static
 # ----------------------------------------------------------------------------------------
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'manual_full.ipynb']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'manual.ipynb']
 html_static_path = ['_static']
 html_css_files = ['css/custom.css']
 master_doc = 'index'

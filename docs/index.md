@@ -13,7 +13,7 @@ DeepMIMO is developed and used by the [Wireless Intelligence Lab](https://wi-lab
 
 installation
 quickstart
-manual.ipynb
+manual_full.ipynb
 ```
 
 ```{toctree}
