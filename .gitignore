@@ -32,10 +32,11 @@ scripts/b2_direct_upload.py
 logging_*.txt
 **/.ipynb_checkpoints/
 
-#   For building visualizations
+# Others
 building_*
 old/*
 keep_for_future/*
+ai-ran/*
 
 # Documentation
 docs/_build/
