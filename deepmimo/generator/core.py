@@ -137,9 +137,9 @@ def load(scen_name: str, **load_params) -> Dataset | MacroDataset:
     return dataset
 
 def _load_raytracing_scene(scene_folder: str, txrx_dict: dict, max_paths: int = c.MAX_PATHS,
-                          tx_sets: Dict[int, list | str] | list | str = 'all',
-                          rx_sets: Dict[int, list | str] | list | str = 'all',
-                          matrices: List[str] | str = 'all') -> Dataset:
+                           tx_sets: Dict[int, list | str] | list | str = 'all',
+                           rx_sets: Dict[int, list | str] | list | str = 'rx_only',
+                           matrices: List[str] | str = 'all') -> Dataset:
     """Load raytracing data for a scene.
 
     Args:
@@ -327,13 +327,20 @@ def _validate_txrx_sets(sets: Dict[int, list | str] | list | str,
         
             sets_dict[set_id] = np.arange(txrx_dict[f'txrx_set_{set_id}']['num_points'])
     elif type(sets) is str:
-        if sets != 'all':
-            raise Exception(f"String '{sets}' not understood. Only string allowed "
-                          "is 'all' to generate all available sets and indices")
+        if sets not in ['all', 'rx_only']:
+            raise Exception(f"String '{sets}' not understood. Only strings allowed "
+                          "are 'all' to generate all available sets and indices, "
+                          "or 'rx_only' to generate all available rx sets and indices")
         
         # Generate dict with all sets and indices available
         sets_dict = {}
         for set_id in valid_set_ids:
-            sets_dict[set_id] = np.arange(txrx_dict[f'txrx_set_{set_id}']['num_points'])
+            set_dict = txrx_dict[f'txrx_set_{set_id}']
+            
+            # If rx_only, only include sets that are only rx
+            if sets == 'rx_only' and tx_or_rx == 'rx' and set_dict['is_tx']:
+                continue
+            sets_dict[set_id] = np.arange(set_dict['num_points'])
+        
     return sets_dict
     
