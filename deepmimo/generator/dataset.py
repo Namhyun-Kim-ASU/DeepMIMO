@@ -794,6 +794,41 @@ class Dataset(DotDict):
         """
         return get_uniform_idxs(self.n_ue, self.grid_size, steps)
     
+    def get_row_idxs(self, row_idxs: list[int] | np.ndarray) -> np.ndarray:
+        """Return indices of users in the specified rows, assuming a grid structure.
+        
+        Args:
+            row_idxs: Array of row indices to include in the new dataset
+
+        Returns:
+            Array of indices of receivers in the specified rows
+        """
+        # For each row, get all indices in that row
+        indices = []
+        for row in row_idxs:
+            # Each row contains grid_size[0] elements (number of columns)
+            row_start = row * self.grid_size[0]
+            row_indices = np.arange(row_start, row_start + self.grid_size[0])
+            indices.extend(row_indices)
+        return np.array(indices)
+        
+    def get_col_idxs(self, col_idxs: list[int] | np.ndarray) -> np.ndarray:
+        """Return indices of users in the specified columns, assuming a grid structure.
+        
+        Args:
+            col_idxs: Array of column indices to include in the new dataset
+
+        Returns:
+            Array of indices of receivers in the specified columns
+        """
+        # For each column, get all indices in that column
+        indices = []
+        for col in col_idxs:
+            # Each column contains grid_size[1] elements
+            col_indices = col + np.arange(self.grid_size[1]) * self.grid_size[0]
+            indices.extend(col_indices)
+        return np.array(indices)
+
 
     ###########################################
     # 7. Visualization
