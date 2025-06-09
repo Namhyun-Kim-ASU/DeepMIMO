@@ -305,6 +305,9 @@ def plot_rays(rx_loc: np.ndarray, tx_loc: np.ndarray, inter_pos: np.ndarray,
     inter_pos = np.asarray(inter_pos)  # Shape: (n_paths, max_interactions, 3)
     inter = np.asarray(inter)  # Shape: (n_paths,)
     
+    # Get number of valid paths (non-NaN interaction codes)
+    n_valid_paths = np.sum(~np.isnan(inter))
+    
     # Define dimension-specific plotting functions
     def plot_line(start_point, end_point, **kwargs):
         coords = [(start_point[i], end_point[i]) for i in range(3 if proj_3D else 2)]
@@ -333,8 +336,8 @@ def plot_rays(rx_loc: np.ndarray, tx_loc: np.ndarray, inter_pos: np.ndarray,
         -1: 'Unknown'
     }
     
-    # For each ray path
-    for path_idx in range(len(inter_pos)):
+    # For each ray path up to number of valid paths
+    for path_idx in range(n_valid_paths):
         # Get valid interaction points for this path (excluding NaN values)
         # Check if any coordinate (x,y,z) is not NaN
         valid_inters = ~np.any(np.isnan(inter_pos[path_idx]), axis=1)
