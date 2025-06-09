@@ -458,6 +458,20 @@ class Dataset(DotDict):
         """
         return fov[0] >= 360 and fov[1] >= 180
 
+    def _is_fov_enabled(self) -> bool:
+        """Get the current FoV status including parameters and whether they are full sphere.
+        
+        Returns:
+            bool: True if FoV filtering is enabled
+        """
+        bs_fov = self.get('bs_fov')
+        ue_fov = self.get('ue_fov')
+        bs_full = bs_fov is not None and self._is_full_fov(bs_fov)
+        ue_full = ue_fov is not None and self._is_full_fov(ue_fov)
+        has_fov = (bs_fov is not None and not bs_full) or (ue_fov is not None and not ue_full)
+        
+        return has_fov
+
     def _compute_fov(self) -> Dict[str, np.ndarray]:
         """Compute field of view filtered angles for all users.
         
@@ -510,7 +524,6 @@ class Dataset(DotDict):
             c.AOA_EL_FOV_PARAM_NAME: np.where(fov_mask, aoa_theta, np.nan),
             c.AOA_AZ_FOV_PARAM_NAME: np.where(fov_mask, aoa_phi, np.nan)
         }
-
 
     def _clear_cache_fov(self) -> None:
         """Clear all cached attributes that depend on field of view (FoV) filtering.
@@ -581,12 +594,13 @@ class Dataset(DotDict):
         """
         los_status = np.full(self.inter.shape[0], -1)
         
-        # First ensure we have rotated angles by accessing them
-        # This will trigger computation if needed
-        _ = self[c.AOD_AZ_ROT_PARAM_NAME]
-        
-        # Now get FoV mask which will use the rotated angles
-        fov_mask = self[c.FOV_MASK_PARAM_NAME]
+        # Get FoV mask if FoV filtering is enabled
+        if self._is_fov_enabled():
+            _ = self[c.AOD_AZ_ROT_PARAM_NAME]
+            fov_mask = self[c.FOV_MASK_PARAM_NAME]
+        else:
+            fov_mask = None
+
         if fov_mask is not None:
             # If we have FoV filtering, only consider paths within FoV
             has_paths = np.any(fov_mask, axis=1)
@@ -612,11 +626,14 @@ class Dataset(DotDict):
 
     def _compute_num_paths(self) -> np.ndarray:
         """Compute number of valid paths for each user after FoV filtering."""
-        # Get FoV-filtered angles (this will trigger FoV computation if needed)
-        aoa_az_fov = self[c.AOA_AZ_FOV_PARAM_NAME]
+
+        if self._is_fov_enabled():
+            aoa = self[c.AOA_AZ_FOV_PARAM_NAME]
+        else:
+            aoa = self[c.AOA_AZ_PARAM_NAME]
         
-        # Count non-NaN values (NaN indicates filtered out by FoV)
-        return (~np.isnan(aoa_az_fov)).sum(axis=1)
+        # Count non-NaN values (NaN indicates filtered out, possibly by FoV)
+        return (~np.isnan(aoa)).sum(axis=1)
 
     def _compute_num_interactions(self) -> np.ndarray:
         """Compute number of interactions for each path of each user."""
