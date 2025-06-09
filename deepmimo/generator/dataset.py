@@ -957,13 +957,48 @@ class Dataset(DotDict):
         
         return self._trim_by_path(path_mask)
 
-    def trim_by_path_type(self, inter_type: str) -> 'Dataset':
-        """Trim the dataset by path type.
+    def trim_by_path_type(self, allowed_types: List[str]) -> 'Dataset':
+        """Trim the dataset to keep only paths with allowed interaction types.
         
         Args:
-            inter_type: The path type to trim the dataset by.
+            allowed_types: List of allowed interaction types. Can be any combination of:
+                'LoS': Line of sight
+                'R': Reflection
+                'D': Diffraction
+                'S': Scattering
+                'T': Transmission
+                
+        Returns:
+            A new Dataset with paths trimmed to only include allowed interaction types.
         """
-        return 0
+        # Map string types to interaction codes
+        type_to_code = {
+            'LoS': c.INTERACTION_LOS,
+            'R': c.INTERACTION_REFLECTION,
+            'D': c.INTERACTION_DIFFRACTION,
+            'S': c.INTERACTION_SCATTERING,
+            'T': c.INTERACTION_TRANSMISSION,
+        }
+        
+        # Convert allowed types to codes
+        allowed_codes = [type_to_code[t] for t in allowed_types]
+        
+        # Create mask for paths with allowed interaction types
+        path_mask = np.zeros_like(self.inter, dtype=bool)
+        
+        # For each path, check if all its interactions are allowed
+        for user_idx in range(self.n_ue):
+            for path_idx in range(self.inter.shape[1]):
+                # Skip if no interaction
+                if np.isnan(self.inter[user_idx, path_idx]):
+                    continue
+                    
+                # Get interaction code as string and check each digit
+                inter_str = str(int(self.inter[user_idx, path_idx]))
+                is_valid = all(int(digit) in allowed_codes for digit in inter_str)
+                path_mask[user_idx, path_idx] = is_valid
+        
+        return self._trim_by_path(path_mask)
 
     ###########################################
     # 8. Visualization
