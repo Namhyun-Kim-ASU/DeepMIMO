@@ -702,10 +702,10 @@ class Dataset(DotDict):
         
         # Get FoV filtered angles and apply antenna patterns in batch
         return antennapattern.apply_batch(power=self[c.PWR_LINEAR_PARAM_NAME],
-                                        aoa_theta=self[c.AOA_EL_FOV_PARAM_NAME],
-                                        aoa_phi=self[c.AOA_AZ_FOV_PARAM_NAME], 
-                                        aod_theta=self[c.AOD_EL_FOV_PARAM_NAME],
-                                        aod_phi=self[c.AOD_AZ_FOV_PARAM_NAME])
+                                          aoa_theta=self[c.AOA_EL_FOV_PARAM_NAME],
+                                          aoa_phi=self[c.AOA_AZ_FOV_PARAM_NAME], 
+                                          aod_theta=self[c.AOD_EL_FOV_PARAM_NAME],
+                                          aod_phi=self[c.AOD_AZ_FOV_PARAM_NAME])
 
 
     def _compute_power_linear(self) -> np.ndarray:
@@ -713,7 +713,7 @@ class Dataset(DotDict):
         return dbw2watt(self.power) 
 
     ###########################################
-    # 6. Grid and Sampling Operations
+    # 6. Grid and User Sampling Operations
     ###########################################
 
     def _compute_grid_info(self) -> Dict[str, np.ndarray]:
@@ -753,41 +753,6 @@ class Dataset(DotDict):
         
         return grid_points == self.n_ue
 
-    def subset(self, idxs: np.ndarray) -> 'Dataset':
-        """Create a new dataset containing only the selected indices.
-        
-        Args:
-            idxs: Array of indices to include in the new dataset
-            
-        Returns:
-            Dataset: A new dataset containing only the selected indices
-        """
-        # Create a new dataset with initial data
-        initial_data = {}
-        
-        # Copy shared parameters that should remain consistent across datasets
-        for param in SHARED_PARAMS:
-            if hasattr(self, param):
-                initial_data[param] = getattr(self, param)
-            
-        # Directly set n_ue
-        initial_data['n_ue'] = len(idxs)
-        
-        # Create new dataset with initial data
-        new_dataset = Dataset(initial_data)
-        
-        # Copy all attributes
-        for attr, value in self.to_dict().items():
-            # skip private and already handled attributes
-            if not attr.startswith('_') and attr not in SHARED_PARAMS + ['n_ue']:
-                if isinstance(value, np.ndarray) and value.shape[0] == self.n_ue:
-                    # Copy and index arrays with UE dimension
-                    setattr(new_dataset, attr, value[idxs])
-                else:
-                    # Copy other attributes as is
-                    setattr(new_dataset, attr, value)
-                
-        return new_dataset
 
     def get_active_idxs(self) -> np.ndarray:
         """Return indices of active users.
@@ -846,9 +811,94 @@ class Dataset(DotDict):
             indices.extend(col_indices)
         return np.array(indices)
 
+    
+    ###########################################
+    # 7. Subsetting and Trimming
+    ###########################################
+
+    def subset(self, idxs: np.ndarray) -> 'Dataset':
+        """Create a new dataset containing only the selected indices.
+        
+        Args:
+            idxs: Array of indices to include in the new dataset
+            
+        Returns:
+            Dataset: A new dataset containing only the selected indices
+        """
+        # Create a new dataset with initial data
+        initial_data = {}
+        
+        # Copy shared parameters that should remain consistent across datasets
+        for param in SHARED_PARAMS:
+            if hasattr(self, param):
+                initial_data[param] = getattr(self, param)
+            
+        # Directly set n_ue
+        initial_data['n_ue'] = len(idxs)
+        
+        # Create new dataset with initial data
+        new_dataset = Dataset(initial_data)
+        
+        # Copy all attributes
+        for attr, value in self.to_dict().items():
+            # skip private and already handled attributes
+            if not attr.startswith('_') and attr not in SHARED_PARAMS + ['n_ue']:
+                if isinstance(value, np.ndarray) and value.shape[0] == self.n_ue:
+                    # Copy and index arrays with UE dimension
+                    setattr(new_dataset, attr, value[idxs])
+                else:
+                    # Copy other attributes as is
+                    setattr(new_dataset, attr, value)
+                
+        return new_dataset
+
+    # Ignore for now
+    def _trim_by_index(self, idxs: np.ndarray) -> 'Dataset':
+        """Rename previous subset function.
+        
+        Args:
+            idxs: The indices to trim the dataset by.
+        """
+        return self.subset(idxs)
+    
+    # Ignore for now
+    def _trim_by_fov(self, fov: float) -> 'Dataset':
+        """Trim the dataset by FoV.
+        
+        This function performs the same as applying the FoV filter to the dataset. 
+        It is possible to apply it based on a BS and UE rotation, either already
+        defined in the channel parameters or based on input arguments.
+
+        BENEFIT: makes all the FoV logic unnecessary. 
+
+        NOTE: before making this function, decide what to do with the rotated angles.
+        Should we always have a .apply_fov(ue_fov, bs_fov) or .apply_rot(ue_rot, bs_rot) 
+        methods that apply in-place or return new datasets?
+        ANS: Yes. aoa_az should always be with respect to the BS/UE orientation.
+
+        Args:
+            fov: The FoV to trim the dataset by.
+        """
+        return 0
+    
+    def trim_by_path_depth(self, path_depth: int) -> 'Dataset':
+        """Trim the dataset by path depth.
+        
+        Args:
+            path_depth: The path depth to trim the dataset by.
+        """
+        return 0
+
+    def trim_by_path_type(self, inter_type: str) -> 'Dataset':
+        """Trim the dataset by path type.
+        
+        Args:
+            path_type: The path type to trim the dataset by.
+        """
+        return 0
 
     ###########################################
-    # 7. Visualization
+    # 8. Visualization
     ###########################################
 
     def plot_coverage(self, cov_map, **kwargs):
@@ -875,7 +925,7 @@ class Dataset(DotDict):
                          self.inter[idx], **default_kwargs)
     
     ###########################################
-    # 8. Utilities and Computation Methods
+    # 9. Utilities and Computation Methods
     ###########################################
 
     # Dictionary mapping attribute names to their computation methods
