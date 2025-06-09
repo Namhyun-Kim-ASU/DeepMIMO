@@ -856,7 +856,61 @@ class Dataset(DotDict):
                 
         return new_dataset
 
-    # Ignore for now
+    def _trim_by_path(self, path_mask: np.ndarray) -> 'Dataset':
+        """Helper function to trim paths based on a boolean mask.
+        
+        Args:
+            path_mask: Boolean array of shape [n_users, n_paths] indicating which paths to keep.
+            
+        Returns:
+            A new Dataset with trimmed paths.
+        """
+        # Create a new dataset with the same structure
+        new_dataset = self.deepcopy()
+        
+        # List of fundamental arrays that need to be trimmed
+        path_arrays = [
+            c.POWER_PARAM_NAME,
+            c.PHASE_PARAM_NAME,
+            c.DELAY_PARAM_NAME,
+            c.AOA_AZ_PARAM_NAME,
+            c.AOA_EL_PARAM_NAME,
+            c.AOD_AZ_PARAM_NAME,
+            c.AOD_EL_PARAM_NAME,
+            c.INTERACTIONS_PARAM_NAME,
+            c.INTERACTIONS_POS_PARAM_NAME,
+        ]
+        
+        # For each user, reorder valid paths to the beginning
+        for user_idx in range(self.n_ue):
+            # Get valid and invalid paths for this user
+            valid_paths = np.where(path_mask[user_idx])[0]
+            invalid_paths = np.where(~path_mask[user_idx])[0]
+            
+            # Set invalid paths to NaN
+            for array_name in path_arrays:
+                new_dataset[array_name][user_idx, invalid_paths] = np.nan
+            
+            # Reorder paths: valid paths first, then invalid paths
+            new_order = np.concatenate([valid_paths, invalid_paths])
+            
+            # Reorder all path arrays
+            for array_name in path_arrays:
+                new_dataset[array_name][user_idx] = new_dataset[array_name][user_idx, new_order]
+        
+        # Compress arrays to remove unused paths
+        data_dict = {k: v for k, v in new_dataset.items() if isinstance(v, np.ndarray)}
+        compressed_data = cu.compress_path_data(data_dict)
+        
+        # Update dataset with compressed arrays
+        for key, value in compressed_data.items():
+            new_dataset[key] = value
+        
+        # Reset computed attributes
+        new_dataset._computed_attributes = {}  # Clear computed attributes
+        
+        return new_dataset
+
     def _trim_by_index(self, idxs: np.ndarray) -> 'Dataset':
         """Rename previous subset function.
         
@@ -865,7 +919,6 @@ class Dataset(DotDict):
         """
         return self.subset(idxs)
     
-    # Ignore for now
     def _trim_by_fov(self, fov: float) -> 'Dataset':
         """Trim the dataset by FoV.
         
@@ -884,82 +937,32 @@ class Dataset(DotDict):
             fov: The FoV to trim the dataset by.
         """
         return 0
-    
+
     def trim_by_path_depth(self, path_depth: int) -> 'Dataset':
-        """Trim the dataset by path depth.
+        """Trim the dataset to keep only paths with at most the specified number of interactions.
         
         Args:
-            path_depth: The maximum number of interactions per path to keep.
-                       Paths with more interactions will be removed.
-                       
+            path_depth: Maximum number of interactions allowed in a path.
+            
         Returns:
-            A new Dataset instance with paths trimmed to the specified depth.
+            A new Dataset with paths trimmed to the specified depth.
         """
-        # Create a deep copy of the dataset
-        new_dataset = self.deepcopy()
+        # Create mask for paths with valid depth
+        path_mask = np.zeros_like(self.inter, dtype=bool)
         
         # Get number of interactions for each path
-        num_interactions = self._compute_num_interactions()
+        n_interactions = self._compute_num_interactions()
         
-        # Create mask for paths with depth <= path_depth
-        valid_paths_mask = num_interactions <= path_depth
+        # Keep paths with valid number of interactions
+        path_mask = n_interactions <= path_depth
         
-        # For each user, reorder paths to move valid ones to the beginning
-        n_users = self.n_ue
-        for user_idx in range(n_users):
-            # Get valid path indices for this user
-            valid_paths = np.where(valid_paths_mask[user_idx])[0]
-            invalid_paths = np.where(~valid_paths_mask[user_idx])[0]
-            
-            # Create new order: valid paths first, then invalid paths
-            new_order = np.concatenate([valid_paths, invalid_paths])
-            
-            # Reorder all path-related arrays
-            path_arrays = [
-                c.POWER_PARAM_NAME,
-                c.PHASE_PARAM_NAME,
-                c.DELAY_PARAM_NAME,
-                c.AOA_AZ_PARAM_NAME,
-                c.AOA_EL_PARAM_NAME,
-                c.AOD_AZ_PARAM_NAME,
-                c.AOD_EL_PARAM_NAME,
-                c.INTERACTIONS_PARAM_NAME,
-                c.INTERACTIONS_POS_PARAM_NAME
-            ]
-            
-            for array_name in path_arrays:
-                new_dataset[array_name][user_idx] = new_dataset[array_name][user_idx][new_order]
-        
-        # Set invalid paths to NaN
-        for user_idx in range(n_users):
-            valid_paths = np.where(valid_paths_mask[user_idx])[0]
-            max_valid_idx = len(valid_paths)
-            
-            # Set all paths after the last valid one to NaN
-            for array_name in path_arrays:
-                new_dataset[array_name][user_idx, max_valid_idx:] = np.nan
-        
-        # Compress arrays to remove unused paths
-        data_dict = {k: v for k, v in new_dataset.items() if isinstance(v, np.ndarray)}
-        compressed_data = cu.compress_path_data(data_dict)
-        
-        # Update dataset with compressed arrays
-        for key, value in compressed_data.items():
-            new_dataset[key] = value
-        
-        # Recompute derived attributes
-        new_dataset._computed_attributes = {}  # Clear computed attributes
-        new_dataset._compute_num_paths()  # Recompute number of paths
-        new_dataset._compute_num_interactions()  # Recompute number of interactions
-        new_dataset._compute_los()  # Recompute LoS status
-        
-        return new_dataset
+        return self._trim_by_path(path_mask)
 
     def trim_by_path_type(self, inter_type: str) -> 'Dataset':
         """Trim the dataset by path type.
         
         Args:
-            path_type: The path type to trim the dataset by.
+            inter_type: The path type to trim the dataset by.
         """
         return 0
 
