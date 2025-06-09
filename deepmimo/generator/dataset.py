@@ -58,6 +58,9 @@ from .generator_utils import (
     get_uniform_idxs,
 )
 
+# Converter utilities
+from ..converter import converter_utils as cu
+
 # Parameters that should remain consistent across datasets in a MacroDataset
 SHARED_PARAMS = [
     c.SCENE_PARAM_NAME,           # Scene object
@@ -65,6 +68,7 @@ SHARED_PARAMS = [
     c.LOAD_PARAMS_PARAM_NAME,     # Loading parameters
     c.RT_PARAMS_PARAM_NAME,       # Ray-tracing parameters
 ]
+
 
 class Dataset(DotDict):
     """Class for managing DeepMIMO datasets.
@@ -885,9 +889,71 @@ class Dataset(DotDict):
         """Trim the dataset by path depth.
         
         Args:
-            path_depth: The path depth to trim the dataset by.
+            path_depth: The maximum number of interactions per path to keep.
+                       Paths with more interactions will be removed.
+                       
+        Returns:
+            A new Dataset instance with paths trimmed to the specified depth.
         """
-        return 0
+        # Create a deep copy of the dataset
+        new_dataset = self.deepcopy()
+        
+        # Get number of interactions for each path
+        num_interactions = self._compute_num_interactions()
+        
+        # Create mask for paths with depth <= path_depth
+        valid_paths_mask = num_interactions <= path_depth
+        
+        # For each user, reorder paths to move valid ones to the beginning
+        n_users = self.n_ue
+        for user_idx in range(n_users):
+            # Get valid path indices for this user
+            valid_paths = np.where(valid_paths_mask[user_idx])[0]
+            invalid_paths = np.where(~valid_paths_mask[user_idx])[0]
+            
+            # Create new order: valid paths first, then invalid paths
+            new_order = np.concatenate([valid_paths, invalid_paths])
+            
+            # Reorder all path-related arrays
+            path_arrays = [
+                c.POWER_PARAM_NAME,
+                c.PHASE_PARAM_NAME,
+                c.DELAY_PARAM_NAME,
+                c.AOA_AZ_PARAM_NAME,
+                c.AOA_EL_PARAM_NAME,
+                c.AOD_AZ_PARAM_NAME,
+                c.AOD_EL_PARAM_NAME,
+                c.INTERACTIONS_PARAM_NAME,
+                c.INTERACTIONS_POS_PARAM_NAME
+            ]
+            
+            for array_name in path_arrays:
+                new_dataset[array_name][user_idx] = new_dataset[array_name][user_idx][new_order]
+        
+        # Set invalid paths to NaN
+        for user_idx in range(n_users):
+            valid_paths = np.where(valid_paths_mask[user_idx])[0]
+            max_valid_idx = len(valid_paths)
+            
+            # Set all paths after the last valid one to NaN
+            for array_name in path_arrays:
+                new_dataset[array_name][user_idx, max_valid_idx:] = np.nan
+        
+        # Compress arrays to remove unused paths
+        data_dict = {k: v for k, v in new_dataset.items() if isinstance(v, np.ndarray)}
+        compressed_data = cu.compress_path_data(data_dict)
+        
+        # Update dataset with compressed arrays
+        for key, value in compressed_data.items():
+            new_dataset[key] = value
+        
+        # Recompute derived attributes
+        new_dataset._computed_attributes = {}  # Clear computed attributes
+        new_dataset._compute_num_paths()  # Recompute number of paths
+        new_dataset._compute_num_interactions()  # Recompute number of interactions
+        new_dataset._compute_los()  # Recompute LoS status
+        
+        return new_dataset
 
     def trim_by_path_type(self, inter_type: str) -> 'Dataset':
         """Trim the dataset by path type.
