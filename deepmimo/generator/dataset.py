@@ -881,22 +881,21 @@ class Dataset(DotDict):
             c.INTERACTIONS_POS_PARAM_NAME,
         ]
         
-        # For each user, reorder valid paths to the beginning
-        for user_idx in range(self.n_ue):
-            # Get valid and invalid paths for this user
-            valid_paths = np.where(path_mask[user_idx])[0]
-            invalid_paths = np.where(~path_mask[user_idx])[0]
-            
-            # Set invalid paths to NaN
-            for array_name in path_arrays:
-                new_dataset[array_name][user_idx, invalid_paths] = np.nan
-            
-            # Reorder paths: valid paths first, then invalid paths
-            new_order = np.concatenate([valid_paths, invalid_paths])
-            
-            # Reorder all path arrays
-            for array_name in path_arrays:
-                new_dataset[array_name][user_idx] = new_dataset[array_name][user_idx, new_order]
+        # Set invalid paths to NaN
+        for array_name in path_arrays:
+            new_dataset[array_name][~path_mask] = np.nan
+        
+        # Create new order for each user: valid paths first, then invalid paths
+        new_order = np.argsort(~path_mask, axis=1)  # False (valid) comes before True (invalid)
+        
+        # Reorder all path arrays
+        for array_name in path_arrays:
+            if array_name == c.INTERACTIONS_POS_PARAM_NAME:
+                # Handle 4D array (n_users, n_paths, n_interactions, 3)
+                new_dataset[array_name] = np.take_along_axis(new_dataset[array_name], new_order[:, :, None, None], axis=1)
+            else:
+                # Handle 2D arrays (n_users, n_paths)
+                new_dataset[array_name] = np.take_along_axis(new_dataset[array_name], new_order, axis=1)
         
         # Compress arrays to remove unused paths
         data_dict = {k: v for k, v in new_dataset.items() if isinstance(v, np.ndarray)}
