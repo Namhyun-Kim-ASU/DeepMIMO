@@ -156,7 +156,7 @@ class PhysicalObjectParser:
         self.name = self.file_path.stem  # Get filename without extension
         self.starting_id = starting_id
     
-    def parse(self) -> List[PhysicalElement]:
+    def parse(self, force_fast_mode: bool = True) -> List[PhysicalElement]:
         """Parse the file and return a list of physical objects.
         
         Returns:
@@ -182,7 +182,7 @@ class PhysicalObjectParser:
             self.name = f"{self.name}_{i}"
 
             # Generate faces
-            object_faces = get_object_faces(vertices, fast=use_fast_mode)
+            object_faces = get_object_faces(vertices, fast=use_fast_mode or force_fast_mode)
             if object_faces is None:
                 print(f"Failed to generate faces for object {self.name}")
                 continue
