@@ -1,16 +1,17 @@
 [build-system]
-requires = ["setuptools>=65", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "DeepMIMO"
-version = "4.0.0a3"
+name = "DeepMIMOtest"
+version = "4.0.0a13"
 authors = [
     { name = "João Morais" },
     { name = "Umut Demirhan" },
     { name = "Ahmed Alkhateeb" },
 ]
 description = "DeepMIMO dataset generator library"
+license = "GPL-2.0-or-later"
 license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">=3.10"  # to build the docs, python 3.11 is needed (uses 3.11 built-in tomllib)
@@ -144,7 +145,7 @@ all = [
     # Development
     "build",
     "jupyter",
-    "twine",
+    "twine==6.0.1",
 
     # Documentation
     "docutils>=0.19",
