@@ -303,7 +303,7 @@ class Dataset(DotDict):
         # Whether to enable the doppler shift per path in the channel
         n_paths = np.min((n_paths_to_gen, self.delay.shape[-1]))
         default_doppler = np.zeros((self.n_ue, n_paths))
-        use_doppler = hasattr(self, 'doppler')
+        use_doppler = self.hasattr('doppler')
 
         if params[c.PARAMSET_DOPPLER_EN] and not use_doppler:
             all_obj_vel = np.array([obj.vel for obj in self.scene.objects])
@@ -899,7 +899,7 @@ class Dataset(DotDict):
         
         # Copy shared parameters that should remain consistent across datasets
         for param in SHARED_PARAMS:
-            if hasattr(self, param):
+            if self.hasattr(param):
                 initial_data[param] = getattr(self, param)
             
         # Directly set n_ue
