@@ -17,6 +17,29 @@ from copy import deepcopy
 from .. import consts as c
 from ..general_utils import DotDict, compare_two_dicts, deep_dict_merge
 
+def _convert_lists_to_arrays(obj: Any) -> Any:
+    """Recursively convert lists to numpy arrays in nested dictionaries.
+    
+    This function traverses through nested dictionaries and converts any list
+    values to numpy arrays. This allows users to provide parameters as lists
+    instead of requiring explicit np.array() calls.
+    
+    Args:
+        obj: Object to process (dict, list, or other type)
+        
+    Returns:
+        Object with lists converted to numpy arrays
+    """
+    if isinstance(obj, DotDict):
+        obj.update({key: _convert_lists_to_arrays(value) for key, value in obj.items()})
+        return obj
+    elif isinstance(obj, dict):
+        return {key: _convert_lists_to_arrays(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return np.array(obj)
+    else:
+        return obj
+
 class ChannelParameters(DotDict):
     """Class for managing channel generation parameters.
     
@@ -36,7 +59,7 @@ class ChannelParameters(DotDict):
         # Initialize with specific parameters
         params = ChannelParameters(enable_doppler=True, freq_domain=True)
         
-        # Initialize with nested parameters
+        # Initialize with nested parameters (lists are automatically converted to numpy arrays during validation)
         params = ChannelParameters(bs_antenna={'shape': [4, 4]})  # Other bs_antenna fields preserved
     """
     # Default channel generation parameters
@@ -80,6 +103,7 @@ class ChannelParameters(DotDict):
                 These will be merged with data if provided.
                 For nested parameters, provide them as dictionaries (e.g. bs_antenna={'shape': [4,4]})
                 Only specified fields will be overridden, other fields will keep their default values.
+                Lists will be automatically converted to numpy arrays during validation.
         """
         # Initialize with deep copy of defaults
         super().__init__(deepcopy(self.DEFAULT_PARAMS))
@@ -107,6 +131,9 @@ class ChannelParameters(DotDict):
         Raises:
             ValueError: If parameters are invalid or inconsistent
         """
+        # Convert lists to arrays before validation
+        self = _convert_lists_to_arrays(self)
+        
         # Notify the user if some keyword is not used (likely set incorrectly)
         additional_keys = compare_two_dicts(self, ChannelParameters())
         if len(additional_keys):
@@ -136,8 +163,7 @@ class ChannelParameters(DotDict):
             self[c.PARAMSET_ANT_UE][c.PARAMSET_ANT_ROTATION] = np.array([0, 0, 0])
         
         # BS Antenna Radiation Pattern
-        if (c.PARAMSET_ANT_RAD_PAT in self[c.PARAMSET_ANT_BS].keys() and \
-            self[c.PARAMSET_ANT_BS][c.PARAMSET_ANT_ROTATION] is not None):
+        if c.PARAMSET_ANT_RAD_PAT in self[c.PARAMSET_ANT_BS].keys():
             assert_str = ("The BS antenna radiation pattern must have " + 
                          f"one of the following values: {str(c.PARAMSET_ANT_RAD_PAT_VALS)}")
             assert self[c.PARAMSET_ANT_BS][c.PARAMSET_ANT_RAD_PAT] in c.PARAMSET_ANT_RAD_PAT_VALS, assert_str
@@ -145,8 +171,7 @@ class ChannelParameters(DotDict):
             self[c.PARAMSET_ANT_BS][c.PARAMSET_ANT_RAD_PAT] = c.PARAMSET_ANT_RAD_PAT_VALS[0]
             
         # UE Antenna Radiation Pattern
-        if c.PARAMSET_ANT_RAD_PAT in self[c.PARAMSET_ANT_UE].keys() and \
-            self[c.PARAMSET_ANT_UE][c.PARAMSET_ANT_ROTATION] is not None:
+        if c.PARAMSET_ANT_RAD_PAT in self[c.PARAMSET_ANT_UE].keys():
             assert_str = ("The UE antenna radiation pattern must have one of the " + 
                          f"following values: {str(c.PARAMSET_ANT_RAD_PAT_VALS)}")
             assert self[c.PARAMSET_ANT_UE][c.PARAMSET_ANT_RAD_PAT] in c.PARAMSET_ANT_RAD_PAT_VALS, assert_str

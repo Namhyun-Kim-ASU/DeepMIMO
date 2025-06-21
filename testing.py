@@ -80,22 +80,23 @@ for key in main_keys:
 
 #%% Test channel generation
 
-dataset = dm.load(scen_name)[0]
+import deepmimo as dm
+dataset = dm.load('asu_campus_3p5')
 
 # Create channel parameters with all options
 ch_params = dm.ChannelParameters()
 
 # Antenna parameters
 
-# Base station antenna parameters
-ch_params.bs_antenna.rotation = np.array([0, 0, 0])  # [az, el, pol] in degrees
-ch_params.bs_antenna.shape = np.array([8, 1])        # [horizontal, vertical] elements
-ch_params.bs_antenna.spacing = 0.5                   # Element spacing in wavelengths
+# Base station antenna parameters (lists are automatically converted to numpy arrays)
+ch_params.bs_antenna.rotation = [0, 0, 0]  # [az, el, pol] in degrees
+ch_params.bs_antenna.shape = [8, 1]        # [horizontal, vertical] elements
+ch_params.bs_antenna.spacing = 0.5         # Element spacing in wavelengths
 
-# User equipment antenna parameters
-ch_params.ue_antenna.rotation = np.array([0, 0, 0])  # [az, el, pol] in degrees
-ch_params.ue_antenna.shape = np.array([1, 1])        # [horizontal, vertical] elements
-ch_params.ue_antenna.spacing = 0.5                   # Element spacing in wavelengths
+# User equipment antenna parameters (lists are automatically converted to numpy arrays)
+ch_params.ue_antenna.rotation = [0, 0, 0]  # [az, el, pol] in degrees
+ch_params.ue_antenna.shape = [1, 1]        # [horizontal, vertical] elements
+ch_params.ue_antenna.spacing = 0.5         # Element spacing in wavelengths
 
 # Channel parameters
 ch_params.freq_domain = True  # Whether to compute frequency domain channels
@@ -104,10 +105,9 @@ ch_params.num_paths = 10      # Number of paths
 # OFDM parameters
 ch_params.ofdm.bandwidth = 10e6                      # Bandwidth in Hz
 ch_params.ofdm.subcarriers = 512                     # Number of subcarriers
-ch_params.ofdm.selected_subcarriers = np.arange(1)   # Which subcarriers to generate
+ch_params.ofdm.selected_subcarriers = [0]            # Which subcarriers to generate (list automatically converted to array)
 ch_params.ofdm.rx_filter = 0                         # Receive Low Pass / ADC Filter
 
-ch_params.ofdm.aaa = 0
 dataset.set_channel_params(ch_params)
 
 # Generate channels
