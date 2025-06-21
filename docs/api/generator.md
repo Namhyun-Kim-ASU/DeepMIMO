@@ -86,20 +86,22 @@ dataset = dm.load('asu_campus_3p5')
 params = dm.ChannelParameters()
 
 # Configure BS antenna array
-params.bs_antenna.shape = np.array([8, 1])  # 8x1 array
+params.bs_antenna.shape = [8, 1]  # 8x1 array
 params.bs_antenna.spacing = 0.5  # Half-wavelength spacing
-params.bs_antenna.rotation = np.array([0, 0, 0])  # No rotation
+params.bs_antenna.rotation = [0, 0, 0]  # No rotation
 
 # Configure UE antenna array
-params.ue_antenna.shape = np.array([1, 1])  # Single antenna
+params.ue_antenna.shape = [1, 1]  # Single antenna
 params.ue_antenna.spacing = 0.5
-params.ue_antenna.rotation = np.array([0, 0, 0])
+params.ue_antenna.rotation = [0, 0, 0]
 
 # Configure OFDM parameters
 params.ofdm.subcarriers = 512  # Number of subcarriers
 params.ofdm.bandwidth = 10e6  # 10 MHz bandwidth
+params.ofdm.selected_subcarriers = [0]  # Which subcarriers to generate
 
 # Generate frequency-domain channels
+params.doppler = False
 params.freq_domain = True
 channels = dataset.compute_channels(params)
 ```
@@ -110,14 +112,20 @@ For detailed examples of generating channels, see the <a href="../manual_full.ht
 
 | Parameter | Default Value | Description |
 |-----------|--------------|-------------|
-| `bs_antenna.shape` | [8, 1] | BS antenna array dimensions |
+| `bs_antenna.shape` | [8, 1] | BS antenna array dimensions (horizontal, vertical)|
 | `bs_antenna.spacing` | 0.5 | BS antenna spacing (wavelengths) |
-| `bs_antenna.rotation` | [0, 0, 0] | BS rotation angles (degrees) |
-| `ue_antenna.shape` | [1, 1] | UE antenna array dimensions |
+| `bs_antenna.rotation` | [0, 0, 0] | BS rotation angles (degrees around x,y,z) |
+| `ue_antenna.shape` | [1, 1] | UE antenna array dimensions (horizontal, vertical)|
 | `ue_antenna.spacing` | 0.5 | UE antenna spacing (wavelengths) |
-| `ue_antenna.rotation` | [0, 0, 0] | UE rotation angles (degrees) |
+| `ue_antenna.rotation` | [0, 0, 0] | UE rotation angles (degrees around x,y,z) |
 | `ofdm.subcarriers` | 512 | Number of OFDM subcarriers |
+| `ofdm.selected_subcarriers` | 512 | Indices of selected OFDM subcarriers |
 | `ofdm.bandwidth` | 10e6 | OFDM bandwidth (Hz) |
+| `freq_domain` | True | Boolean for generating the channel in frequency (OFDM) |
+| `doppler` | False | Boolean for adding Doppler frequency shifts to the channel |
+
+Note 1: Rotation angles follow the right-hand rule.
+Note 2: The default orientation of an antenna panel is along the +X axis.
 
 ```{eval-rst}
 .. autoclass:: deepmimo.generator.channel.ChannelParameters
