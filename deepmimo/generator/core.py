@@ -99,6 +99,9 @@ def load(scen_name: str, **load_params) -> Dataset | MacroDataset:
     else:
         scen_folder = get_scenario_folder(scen_name)
     
+    # Convert scenario name to lowercase for robustness
+    scen_name = scen_name.lower()
+
     # Download scenario if needed
     if not os.path.exists(scen_folder):
         print('Scenario not found. Would you like to download it? [Y/n]')
