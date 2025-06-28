@@ -92,15 +92,15 @@ def load(scen_name: str, **load_params) -> Dataset | MacroDataset:
     Raises:
         ValueError: If scenario files cannot be loaded
     """
+    # Convert scenario name to lowercase for robustness
+    scen_name = scen_name.lower()
+
     # Handle absolute paths
     if os.path.isabs(scen_name):
         scen_folder = scen_name
         scen_name = os.path.basename(scen_folder)
     else:
         scen_folder = get_scenario_folder(scen_name)
-    
-    # Convert scenario name to lowercase for robustness
-    scen_name = scen_name.lower()
 
     # Download scenario if needed
     if not os.path.exists(scen_folder):
