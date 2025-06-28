@@ -587,6 +587,7 @@ def upload(scenario_name: str, key: str,
         str: Name of submitted scenario if initial submission succeeds, None otherwise.
             Image upload status does not affect return value.
     """
+    scenario_name = scenario_name.lower()
     scen_folder = get_scenario_folder(scenario_name)
     params_path = get_params_path(scenario_name)
 
@@ -736,6 +737,7 @@ def download(scenario_name: str, output_dir: Optional[str] = None) -> Optional[s
     Returns:
         Path to downloaded file if successful, None otherwise
     """
+    scenario_name = scenario_name.lower()
     scenarios_dir = get_scenarios_dir()
     download_dir = output_dir if output_dir else get_scenarios_dir()
     scenario_folder = get_scenario_folder(scenario_name)
