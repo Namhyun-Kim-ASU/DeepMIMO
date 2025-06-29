@@ -60,7 +60,7 @@ from .summary import summary, plot_summary
 
 import json
 
-API_BASE_URL = "https://dev.deepmimo.net"
+API_BASE_URL = "https://deepmimo.net"
 
 # Headers for HTTP requests
 HEADERS = {
