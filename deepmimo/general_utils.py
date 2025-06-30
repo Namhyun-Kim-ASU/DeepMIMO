@@ -456,7 +456,7 @@ def zip(folder_path: str) -> str:
             # Get full path of file
             file_path = os.path.join(root, file)
             # Get relative path from the base folder for preserving structure
-            rel_path = os.path.relpath(file_path, os.path.dirname(folder_path))
+            rel_path = os.path.relpath(file_path, folder_path)
             all_files.append((file_path, rel_path))
 
     # Create a zip file
