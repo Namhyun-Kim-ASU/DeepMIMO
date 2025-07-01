@@ -32,6 +32,7 @@ logging_*.txt
 **/.ipynb_checkpoints/
 aodt_scripts/*
 RT_SOURCES/*
+visibility/*
 
 # Others
 building_*
