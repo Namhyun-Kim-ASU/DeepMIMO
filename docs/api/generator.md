@@ -220,7 +220,7 @@ print(f'obj_vel: {[obj.vel for obj in dataset.scene.objects]}')
 
 ```{note}
 Setting timestamps requires a Dynamic Dataset. The Dynamic dataset is the exact same as 
-a normal dataset, but instead of providing a folder with the ray tracing results directly inside, we provide a folder with many of such folders inside, one for each scene. See more in the [Dataset](#dataset) and [DynamicDataset](#dynamicdataset) sections below.
+a normal dataset, but instead of providing a folder with the ray tracing results directly inside, we provide a folder with many of such folders inside, one for each scene. See more in the [Dataset](#dataset) and DynamicDataset sections below.
 ```
 
 ## Dataset
@@ -346,4 +346,31 @@ channels = macro_dataset.compute_channels()
 ```
 
 ## DynamicDataset
+
+The `DynamicDataset` class extends `MacroDataset` to handle multiple time snapshots of a scenario. Each snapshot is represented by a `MacroDataset` instance, allowing you to track changes in the environment over time.
+
+```python
+# Convert a dynamic dataset
+dm.convert(rt_folder) # rt_folder must contain individual folders of ray tracing results
+
+# Load a dynamic dataset
+dynamic_dataset = dm.load('scenario_name')  # Returns DynamicDataset if multiple time snapshots exist
+
+# Access individual time snapshots
+snapshot = dynamic_dataset[0]  # First time snapshot
+snapshots = dynamic_dataset[1:3]  # Slice of time snapshots
+
+# Access basic properties
+print(f"Number of scenes: {len(dynamic_dataset)}")  # or dynamic_dataset.n_scenes
+print(f"Scene names: {dynamic_dataset.names}")
+```
+
+```{eval-rst}
+.. autoclass:: deepmimo.generator.dataset.DynamicDataset
+   :members:
+   :undoc-members:
+   :show-inheritance:
+```
+
+
 
