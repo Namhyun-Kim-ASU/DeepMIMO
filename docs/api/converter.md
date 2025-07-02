@@ -104,7 +104,7 @@ sionna_exporter(
 
 ```{eval-rst}
 
-.. autofunction:: deepmimo.exporters.sionna_adapter.sionna_exporter
+.. autofunction:: deepmimo.exporters.sionna_exporter.sionna_exporter
 
 ```
 
