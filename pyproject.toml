@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "DeepMIMO"
-version = "4.0.0b2"
+version = "4.0.0b3"
 authors = [
     { name = "João Morais" },
     { name = "Umut Demirhan" },

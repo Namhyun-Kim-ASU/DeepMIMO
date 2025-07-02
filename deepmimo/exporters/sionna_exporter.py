@@ -29,7 +29,7 @@ from ..general_utils import save_pickle
 
 try:
     import sionna.rt
-    from ...pipelines.sionna_rt.sionna_utils import get_sionna_version, is_sionna_v1
+    from ..pipelines.sionna_rt.sionna_utils import get_sionna_version, is_sionna_v1
     Paths = sionna.rt.Paths
     Scene = sionna.rt.Scene
 except ImportError:
