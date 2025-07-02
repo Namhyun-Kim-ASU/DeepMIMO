@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "DeepMIMO"
-version = "4.0.0b"
+version = "4.0.0b2"
 authors = [
     { name = "João Morais" },
     { name = "Umut Demirhan" },
@@ -70,7 +70,7 @@ sionna = [
     # Common ray tracing pipeline tools
     "utm",               # To be replaced by built-in (see geo_utils.py)
     "lxml",              # To be replaced by built-in (see insite_raytracer.py)
-    "pandas",            # To be replaced by built-in (see pipeline_runner.py)
+    "pandas",
     "shapely",           # Used to create building polygons (see pipeline_csv_gen.py)
     "bpy==3.6.0; python_version == '3.10'",
     "bpy==4.4.0; python_version == '3.11'",
