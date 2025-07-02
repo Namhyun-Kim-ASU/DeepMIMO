@@ -130,3 +130,63 @@ Check <a href="../manual_full.html#from-sionna-rt">Conversion From Sionna RT</a>
 ```
 
 ## AODT
+
+Conversion from AODT (Aerial Optical Digital Twin) involves 2 steps:
+1. Exporting: Export data from the AODT database to parquet files. This must be executed in a place with access to the clickhouse database used to store simulation results. In case of AODT On the Cloud, this should run in the jupyter notebook tab. 
+2. Converting: Convert the exported parquet files to DeepMIMO format. This can be executed either along side the export code, or any place with access to the exported parquet files. For example, we can export the files on the cloud, zip them, download them, and convert them locally.
+
+### Dependencies
+
+AODT support requires additional dependencies. Install them using:
+```bash
+pip install --pre deepmimo[aodt]
+```
+
+### Exporting
+
+```python
+from clickhouse_driver import Client
+from deepmimo.exporters import aodt_exporter
+
+# Connect to AODT database
+db_client = Client('clickhouse')
+
+# Export database to parquet files
+aodt_rt_folder = aodt_exporter(
+    db_client,
+    database='',  # Uses first available database if empty
+    output_dir='.'  # Directory to save parquet files
+)
+```
+
+```{eval-rst}
+
+.. autofunction:: deepmimo.exporters.aodt_exporter.aodt_exporter
+
+```
+
+### Converting
+
+```python
+from deepmimo.converter.aodt.aodt_converter import aodt_rt_converter
+
+# Convert AODT data
+scenario = aodt_rt_converter(aodt_rt_folder)
+
+# Required files:
+# - scenario.parquet (Scenario parameters)
+# - raypaths.parquet (Ray paths and interactions)
+# - cirs.parquet (Channel information)
+# - rus.parquet, ues.parquet (TX/RX configurations)
+# - materials.parquet (Material properties)
+# - patterns.parquet (Antenna patterns)
+# - time_info.parquet (Time information)
+```
+
+```{eval-rst}
+
+.. autofunction:: deepmimo.converter.aodt.aodt_converter.aodt_rt_converter
+
+```
+
+
