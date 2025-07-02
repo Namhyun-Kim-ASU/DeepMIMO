@@ -57,7 +57,7 @@ class ChannelParameters(DotDict):
         params = ChannelParameters()
         
         # Initialize with specific parameters
-        params = ChannelParameters(enable_doppler=True, freq_domain=True)
+        params = ChannelParameters(doppler=True, freq_domain=True)
         
         # Initialize with nested parameters (lists are automatically converted to numpy arrays during validation)
         params = ChannelParameters(bs_antenna={'shape': [4, 4]})  # Other bs_antenna fields preserved

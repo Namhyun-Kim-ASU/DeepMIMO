@@ -141,7 +141,7 @@ print(f'rx_vel: {dyn_dataset.rx_vel}')
 print(f'tx_vel: {dyn_dataset.tx_vel}')
 print(f'obj_vel: {[obj.vel for obj in dyn_dataset.scene.objects]}')
 
-# dataset.compute_channels(dm.ChannelParameters(enable_doppler = True))
+# dataset.compute_channels(dm.ChannelParameters(doppler = True))
 
 #%% Non-uniform snapshots
 dyn_dataset.set_timestamps([0, 1.5, 2.3, 4.4, 5.8, 7.1, 8.9, 10.2, 11.7, 13.0, 13.1]) # [timestamps of each scene]
@@ -151,5 +151,5 @@ print(f'rx_vel: {dyn_dataset.rx_vel}')
 print(f'tx_vel: {dyn_dataset.tx_vel}')
 print(f'obj_vel: {[obj.vel for obj in dyn_dataset.scene.objects]}')
 
-# dataset.compute_channels(dm.ChannelParameters(enable_doppler = True))
+# dataset.compute_channels(dm.ChannelParameters(doppler = True))
 

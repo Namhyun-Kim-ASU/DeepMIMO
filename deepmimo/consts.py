@@ -236,7 +236,7 @@ PWR_LINEAR_ANT_GAIN_PARAM_NAME = '_power_linear_ant_gain'
 #==============================================================================
 
 # Base channel parameters
-PARAMSET_DOPPLER_EN = 'enable_doppler'  # Doppler from Ray Tracer
+PARAMSET_DOPPLER_EN = 'doppler'  # Doppler from Ray Tracer
 PARAMSET_FD_CH = 'freq_domain'  # Time Domain / Frequency Domain (OFDM)
 PARAMSET_NUM_PATHS = 'num_paths'  # Number of paths to consider for channel generation
 
