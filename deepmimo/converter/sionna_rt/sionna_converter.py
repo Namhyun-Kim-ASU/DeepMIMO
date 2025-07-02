@@ -54,6 +54,11 @@ def sionna_rt_converter(rt_folder: str, copy_source: bool = False,
 
     # Get scenario name from folder if not provided
     scen_name = scenario_name if scenario_name else os.path.basename(rt_folder)
+
+    # Check if scenario already exists in the scenarios folder
+    scenarios_folder = os.path.join(c.SCENARIOS_FOLDER, parent_folder)
+    if not cu.check_scenario_exists(scenarios_folder, scen_name, overwrite):
+        return
     
     # Setup temporary output folder
     temp_folder = os.path.join(rt_folder, scen_name + c.DEEPMIMO_CONVERSION_SUFFIX)
@@ -95,8 +100,7 @@ def sionna_rt_converter(rt_folder: str, copy_source: bool = False,
         pprint(params)
 
     # Save (move) scenario to deepmimo scenarios folder
-    scenarios_folder = os.path.join(c.SCENARIOS_FOLDER, parent_folder)
-    cu.save_scenario(temp_folder, scenarios_folder, overwrite=overwrite)
+    cu.save_scenario(temp_folder, scenarios_folder)
     
     # Copy and zip ray tracing source files as well
     if copy_source:

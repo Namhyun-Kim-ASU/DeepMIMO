@@ -21,10 +21,29 @@ import shutil
 from ..general_utils import (
     get_mat_filename, 
     zip, 
-    get_scenario_folder,
     save_dict_as_json
 )
 from .. import consts as c
+
+def check_scenario_exists(scenarios_folder: str, scen_name: str, overwrite: Optional[bool] = None) -> bool:
+    """Check if a scenario exists and handle overwrite prompts.
+    
+    Args:
+        scenarios_folder (str): Path to the scenarios folder
+        scen_name (str): Name of the scenario
+        overwrite (Optional[bool]): Whether to overwrite if exists. If None, prompts user.
+        
+    Returns:
+        bool: True if scenario should be overwritten, False if should be skipped
+    """
+    if os.path.exists(os.path.join(scenarios_folder, scen_name)):
+        if overwrite is None:
+            print(f'Scenario with name "{scen_name}" already exists in '
+                  f'{scenarios_folder}. Delete? (Y/n)')
+            ans = input()
+            overwrite = False if 'n' in ans.lower() or ans == '' else True
+        return overwrite
+    return True
 
 def save_mat(data: np.ndarray, data_key: str, output_folder: str,
              tx_set_idx: Optional[int] = None, tx_idx: Optional[int] = None, 
@@ -100,8 +119,7 @@ def save_rt_source_files(sim_folder: str, source_exts: List[str]) -> None:
 
     return
 
-def save_scenario(sim_folder: str, target_folder: str = c.SCENARIOS_FOLDER,
-                  overwrite: Optional[bool] = None) -> Optional[str]:
+def save_scenario(sim_folder: str, target_folder: str = c.SCENARIOS_FOLDER) -> Optional[str]:
     """Save scenario to the DeepMIMO scenarios folder.
     
     Args:
@@ -119,18 +137,9 @@ def save_scenario(sim_folder: str, target_folder: str = c.SCENARIOS_FOLDER,
     scen_name = os.path.basename(new_scen_folder)
     scen_path = os.path.join(target_folder, scen_name)
     
-    # Check if scenario already exists
+    # Delete scenario if it exists
     if os.path.exists(scen_path):
-        if overwrite is None:
-            print(f'Scenario with name "{scen_name}" already exists in '
-                  f'{target_folder}. Delete? (Y/n)')
-            ans = input()
-            overwrite = False if 'n' in ans.lower() else True
-        # Delete scenario if overwrite is True
-        if overwrite:
-            shutil.rmtree(scen_path)
-        else:
-            return None
+        shutil.rmtree(scen_path)
     
     # Move simulation folder to scenarios folder
     shutil.move(sim_folder, scen_path)
