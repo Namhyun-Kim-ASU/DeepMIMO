@@ -124,7 +124,7 @@ def insite_rt_converter(rt_folder: str, copy_source: bool = False,
 
     # Save (move) scenario to deepmimo scenarios folder
     scenarios_folder = os.path.join(c.SCENARIOS_FOLDER, parent_folder)
-    scen_name = cu.save_scenario(temp_folder, scenarios_folder, overwrite=overwrite)
+    cu.save_scenario(temp_folder, scenarios_folder, overwrite=overwrite)
     
     # Copy and zip ray tracing source files as well
     if copy_source:

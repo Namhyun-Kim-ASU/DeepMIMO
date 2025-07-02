@@ -108,7 +108,7 @@ def aodt_rt_converter(rt_folder: str, copy_source: bool = False,
 
     # Save scenario to deepmimo scenarios folder
     scenarios_folder = os.path.join(c.SCENARIOS_FOLDER, parent_folder)
-    scen_name = cu.save_scenario(temp_folder, scenarios_folder, overwrite=overwrite)
+    cu.save_scenario(temp_folder, scenarios_folder, overwrite=overwrite)
     
     # Copy source files if requested
     if copy_source:
