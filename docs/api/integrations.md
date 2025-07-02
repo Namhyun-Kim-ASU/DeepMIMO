@@ -15,12 +15,14 @@ Please contact us directly if this is something you would be interested in.
 
 [Sionna](https://github.com/NVlabs/sionna) is an open-source GPU-accelerated library for link- and system-level simulations.
 
-(coming soon - workitem *started* for sionna 0.19. Feel free to contribute for 1.0)
+See the [DeepMIMO Integration Notebook in Sionna Docs](https://nvlabs.github.io/sionna/phy/tutorials/DeepMIMO.html) for a complete example of the integration. It mainly leverages the Sionna Adapter. 
 
-DeepMIMOv3 is integrated in supported in Sionna already, 0.19 and 1.0, via External Datasets.
+```{eval-rst}
 
-- [External Datasets in Sionna 1.0](https://nvlabs.github.io/sionna/phy/api/channel.wireless.html#external-datasets)
-- [External Datasets in Sionna 0.19](https://jhoydis.github.io/sionna-0.19.2-doc/api/channel.wireless.html#external-datasets)
+.. autoclass:: deepmimo.integrations.sionna_adapter.SionnaAdapter
+
+```
+
 
 ## MATLAB 5G Toolbox
 
