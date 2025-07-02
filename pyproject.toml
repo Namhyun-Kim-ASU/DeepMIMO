@@ -25,7 +25,10 @@ classifiers = [
 dependencies = [
     "matplotlib>=3.8.2",
     "numpy>=1.19.5,<2.3",
-    "scipy>=1.6.2,<=1.15.2", # only used for saving matrices compatible with matlab
+    "scipy>=1.6.2,!=1.15.2", # only used for saving matrices compatible with matlab
+                             # !=1.15.2 is because of numpy wheels incompatibility
+                             # can be removed in a few months when 
+                             # 1.16 is installed by default
     "tqdm>=4.59.0",
     "requests"
 ]
