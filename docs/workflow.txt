@@ -16,9 +16,12 @@ To update the documentation (like adding an example), do this:
 5. Replace the table of contents in the downloaded notebook to be that of the manual.ipynb, because that one has markdown links.
 6. Filter neededless stuff in manual.ipynb with: 
     `jupyter nbconvert manual_full.ipynb —ClearMetadataPreprocessor.enabled=True —clear-output —to notebook —output manual.ipynb`
-7. Change docs/conf.py to exclude manual.ipynb
-8. Change docs/index.md to include manual_full.ipynb
-9. Compile.
+
+(probably already done) 7. Change docs/conf.py to exclude manual.ipynb
+(probably already done) 8. Change docs/index.md to include manual_full.ipynb
+9. Compile: 
+    - cd docs && sphinx-build -b html . _build/html
+    - ...
 10. Push manual.ipynb with the new example.
 
 
