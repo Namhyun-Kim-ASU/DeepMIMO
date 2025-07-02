@@ -86,23 +86,25 @@ Check <a href="../manual_full.html#from-wireless-insite">Conversion From Wireles
 
 Conversion from Sionna involves 2 steps: 
 1. Exporting: Since Sionna RT does not save files, we must save them.
-2. Converting: From the saved files
+2. Converting: Use the saved files to create a DeepMIMO scenario.
 
 ### Exporting
 ```python
-from deepmimo.converter.sionna_rt import sionna_exporter
+from deepmimo.exporters import sionna_exporter
 
-sionna_exporter.export_to_deepmimo(
+sionna_save_folder = 'sionna_test_scen/'
+
+sionna_exporter(
    scene,
    path_list,
    my_compute_path_params,
-   save_folder='sionna_folder/'
+   save_folder=sionna_save_folder
 )
 ```
 
 ```{eval-rst}
 
-.. autofunction:: deepmimo.converter.sionna_rt.sionna_exporter.export_to_deepmimo
+.. autofunction:: deepmimo.exporters.sionna_adapter.sionna_exporter
 
 ```
 
@@ -111,7 +113,7 @@ sionna_exporter.export_to_deepmimo(
 ```python
 from deepmimo.converter.sionna_rt.sionna_converter import sionna_rt_converter
 # Convert Sionna RT data
-scenario = sionna_rt_converter('path/to/sionna_data')
+scenario = sionna_rt_converter(sionna_save_folder)
 
 # Required files:
 # - *.pkl (Scene data)
@@ -128,5 +130,3 @@ Check <a href="../manual_full.html#from-sionna-rt">Conversion From Sionna RT</a>
 ```
 
 ## AODT
-
-### (under construction)
