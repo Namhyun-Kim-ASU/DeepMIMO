@@ -41,7 +41,7 @@ def check_scenario_exists(scenarios_folder: str, scen_name: str, overwrite: Opti
             print(f'Scenario with name "{scen_name}" already exists in '
                   f'{scenarios_folder}. Delete? (Y/n)')
             ans = input()
-            overwrite = False if 'n' in ans.lower() or ans == '' else True
+            overwrite = False if 'n' in ans.lower() else True
         return overwrite
     return True
 
