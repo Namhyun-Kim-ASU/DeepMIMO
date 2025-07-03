@@ -22,7 +22,7 @@ from tqdm import tqdm
 
 # Local imports
 from .sionna_utils import create_base_scene, set_materials, is_sionna_v1, get_sionna_version
-from ...converter.sionna_rt import sionna_exporter
+from ...exporters.sionna_exporter import sionna_exporter
 
 # Version check constant
 IS_LEGACY_VERSION = not is_sionna_v1()

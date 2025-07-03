@@ -64,7 +64,7 @@ from .generator_utils import (
 )
 
 # Converter utilities
-from ..converter import converter_utils as cu
+from ..converters import converter_utils as cu
 
 # Txrx set information
 from ..txrx import get_txrx_sets, TxRxSet

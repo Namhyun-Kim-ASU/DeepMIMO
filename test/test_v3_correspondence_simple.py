@@ -8,7 +8,7 @@ from pprint import pprint
 # Import V3 functions directly from their new locations
 from deepmimo_v3.generator.python.generator import generate_data as generate_old
 from deepmimo_v3.generator.python.params import Parameters as Parameters_old
-from deepmimo_v3.converter.wireless_insite.insite_converter_v3 import insite_rt_converter_v3
+from deepmimo_v3.converters.wireless_insite.insite_converter_v3 import insite_rt_converter_v3
 
 #%% V3 & V4 Conversion
 

@@ -3,7 +3,7 @@
 The converter module provides functionality to automatically detect and convert raytracing data from various supported formats into a standardized DeepMIMO format.
 
 ```
-converter/
+converters/
   ├── converter.py (Main converter)
   ├── converter_utils.py (Helper functions)
   ├── aodt/ (AODT format)
@@ -16,7 +16,7 @@ converter/
 
 ```{eval-rst}
 
-.. autofunction:: deepmimo.converter.convert
+.. autofunction:: deepmimo.converters.convert
    :noindex:
 ```
 
@@ -59,7 +59,7 @@ scenario = dm.convert(
 
 ## Wireless InSite
 ```python
-from deepmimo.converter.wireless_insite.insite_converter import insite_rt_converter
+from deepmimo.converters.wireless_insite.insite_converter import insite_rt_converter
 
 # Convert Wireless InSite project
 scenario = insite_rt_converter('path/to/insite_project')
@@ -78,7 +78,7 @@ Check <a href="../manual_full.html#from-wireless-insite">Conversion From Wireles
 
 ```{eval-rst}
 
-.. autofunction:: deepmimo.converter.wireless_insite.insite_converter.insite_rt_converter
+.. autofunction:: deepmimo.converters.wireless_insite.insite_converter.insite_rt_converter
 
 ```
 
@@ -111,7 +111,7 @@ sionna_exporter(
 ### Converting
 
 ```python
-from deepmimo.converter.sionna_rt.sionna_converter import sionna_rt_converter
+from deepmimo.converters.sionna_rt.sionna_converter import sionna_rt_converter
 # Convert Sionna RT data
 scenario = sionna_rt_converter(sionna_save_folder)
 
@@ -125,7 +125,7 @@ Check <a href="../manual_full.html#from-sionna-rt">Conversion From Sionna RT</a>
 
 ```{eval-rst}
 
-.. autofunction:: deepmimo.converter.sionna_rt.sionna_converter.sionna_rt_converter
+.. autofunction:: deepmimo.converters.sionna_rt.sionna_converter.sionna_rt_converter
 
 ```
 
@@ -168,7 +168,7 @@ aodt_rt_folder = aodt_exporter(
 ### Converting
 
 ```python
-from deepmimo.converter.aodt.aodt_converter import aodt_rt_converter
+from deepmimo.converters.aodt.aodt_converter import aodt_rt_converter
 
 # Convert AODT data
 scenario = aodt_rt_converter(aodt_rt_folder)
@@ -185,7 +185,7 @@ scenario = aodt_rt_converter(aodt_rt_folder)
 
 ```{eval-rst}
 
-.. autofunction:: deepmimo.converter.aodt.aodt_converter.aodt_rt_converter
+.. autofunction:: deepmimo.converters.aodt.aodt_converter.aodt_rt_converter
 
 ```
 

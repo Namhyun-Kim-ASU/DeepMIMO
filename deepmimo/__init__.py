@@ -40,7 +40,7 @@ from .generator.geometry import (
 # Channel parameters
 from .generator.channel import ChannelParameters
 
-from .converter.converter import convert
+from .converters.converter import convert
 from .info import info
 from .general_utils import (
     get_available_scenarios,

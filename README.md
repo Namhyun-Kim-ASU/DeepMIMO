@@ -18,7 +18,7 @@ deepmimo/
 ├── txrx.py                 # Transmitter and receiver
 ├── rt_params.py            # Ray tracing parameters
 ├── general_utils.py        # Utility functions
-├── converter/              # Ray tracer output converters
+├── converters/             # Ray tracer output converters
 │   ├── aodt/               # AODT converter
 │   ├── sionna_rt/          # Sionna RT converter
 │   ├── wireless_insite/    # Wireless Insite converter
