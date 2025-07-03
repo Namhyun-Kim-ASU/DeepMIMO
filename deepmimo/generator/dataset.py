@@ -912,7 +912,9 @@ class Dataset(DotDict):
         for attr, value in self.to_dict().items():
             # skip private and already handled attributes
             if not attr.startswith('_') and attr not in SHARED_PARAMS + ['n_ue']:
-                if isinstance(value, np.ndarray) and value.shape[0] == self.n_ue:
+                if isinstance(value, np.ndarray) and len(value.shape) == 0:
+                    print(f'{attr} is a scalar')
+                if isinstance(value, np.ndarray) and value.ndim > 0 and value.shape[0] == self.n_ue:
                     # Copy and index arrays with UE dimension
                     setattr(new_dataset, attr, value[idxs])
                 else:
