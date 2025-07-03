@@ -59,7 +59,7 @@ scenario = dm.convert(
 
 ## Wireless InSite
 ```python
-from deepmimo.converters.wireless_insite.insite_converter import insite_rt_converter
+from deepmimo.converters import insite_rt_converter
 
 # Convert Wireless InSite project
 scenario = insite_rt_converter('path/to/insite_project')
@@ -111,7 +111,7 @@ sionna_exporter(
 ### Converting
 
 ```python
-from deepmimo.converters.sionna_rt.sionna_converter import sionna_rt_converter
+from deepmimo.converters import sionna_rt_converter
 # Convert Sionna RT data
 scenario = sionna_rt_converter(sionna_save_folder)
 
@@ -168,7 +168,7 @@ aodt_rt_folder = aodt_exporter(
 ### Converting
 
 ```python
-from deepmimo.converters.aodt.aodt_converter import aodt_rt_converter
+from deepmimo.converters import aodt_rt_converter
 
 # Convert AODT data
 scenario = aodt_rt_converter(aodt_rt_folder)
