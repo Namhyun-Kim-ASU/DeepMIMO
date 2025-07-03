@@ -15,7 +15,7 @@ To update the documentation (like adding an example), do this:
 4. Download notebook as manual_full.ipynb
 5. Replace the table of contents in the downloaded notebook to be that of the manual.ipynb, because that one has markdown links.
 6. Filter neededless stuff in manual.ipynb with: 
-    `jupyter nbconvert manual_full.ipynb —ClearMetadataPreprocessor.enabled=True —clear-output —to notebook —output manual.ipynb`
+    `jupyter nbconvert manual_full.ipynb --ClearMetadataPreprocessor.enabled=True --clear-output --to notebook --output manual2.ipynb`
 
 (probably already done) 7. Change docs/conf.py to exclude manual.ipynb
 (probably already done) 8. Change docs/index.md to include manual_full.ipynb
