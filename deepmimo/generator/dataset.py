@@ -1438,7 +1438,6 @@ class Dataset(DotDict):
         'array_response_product': '_compute_array_response_product',
         
         # Field of view
-        'fov': '_compute_fov',
         c.FOV_MASK_PARAM_NAME: '_compute_fov',
         c.AOA_AZ_FOV_PARAM_NAME: '_compute_fov',
         c.AOA_EL_FOV_PARAM_NAME: '_compute_fov',
