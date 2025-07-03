@@ -10,7 +10,7 @@ DeepMIMO Toolchain: Bridging RayTracers and 5G Simulators
 ## Project Structure
 ```
 deepmimo/
-├── api.py                  # Main API interface for dataset management
+├── api.py                  # API interface with DeepMIMO database
 ├── scene.py                # Scene (3D environment) management
 ├── consts.py               # Constants and configurations
 ├── info.py                 # Information on matrices and parameters
@@ -24,21 +24,31 @@ deepmimo/
 │   ├── wireless_insite/    # Wireless Insite converter
 │   ├── converter.py        # Base converter class
 │   └── converter_utils.py  # Converter utilities
+├── exporters/              # Data exporters
+│   ├── aodt_exporter.py    # AODT format exporter
+│   └── sionna_exporter.py  # Sionna format exporter
 ├── generator/              # Dataset generator
 │   ├── core.py             # Core generation functionality
 │   ├── dataset.py          # Dataset class and management
 │   ├── channel.py          # Channel generation
 │   ├── geometry.py         # Geometric calculations
 │   ├── ant_patterns.py     # Antenna pattern definitions
+│   ├── array_wrapper.py    # Array management utilities
 │   ├── visualization.py    # Visualization tools
 │   └── generator_utils.py  # Generator utilities
-└── integrations/           # Integrations with 5G simulation tools
-    ├── sionna_adapter.py   # Sionna integration
-    └── matlab/             # Matlab 5GNR integration
+├── integrations/           # Integrations with 5G simulation tools
+│   ├── sionna_adapter.py   # Sionna integration
+│   └── matlab/             # Matlab 5GNR integration
+└── pipelines/              # Automatic raytracing pipelines
+    ├── sionna_rt/          # Sionna raytracer pipeline
+    ├── wireless_insite/    # Wireless Insite pipeline
+    ├── blender_osm.py      # Blender OSM export utilities
+    ├── TxRxPlacement.py    # Transmitter/Receiver placement
+    └── utils/              # Pipeline utilities
 
 Additional directories:
-├── scripts/                # Utility scripts
-├── examples/               # Usage examples
+├── deepmimo_v3/            # V3 Version for OFDM generation checks
+├── scripts/                # Utility scripts and pipelines
 ├── docs/                   # Documentation
 └── test/                   # Test suite
 ```
