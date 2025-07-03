@@ -1250,7 +1250,7 @@ class Dataset(DotDict):
               See Sionna.rt.Paths.doppler in: https://nvlabs.github.io/sionna/rt/api/paths.html
         """
         self.doppler_enabled = True
-        doppler = np.zeros((self.n_ue, self.max_paths)) + 2 
+        doppler = np.zeros((self.n_ue, self.max_paths))
         if not self.doppler_enabled:
             return doppler
         
