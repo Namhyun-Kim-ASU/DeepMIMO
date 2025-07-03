@@ -273,7 +273,8 @@ def plot_rays(rx_loc: np.ndarray, tx_loc: np.ndarray, inter_pos: np.ndarray,
               inter: np.ndarray, figsize: tuple = (10,8), dpi: int = 100,
               proj_3D: bool = True, color_by_type: bool = True,
               inter_objects: Optional[np.ndarray] = None,
-              inter_obj_labels: Optional[list[str]] = None) -> Tuple[Figure, Axes]:
+              inter_obj_labels: Optional[list[str]] = None,
+              ax: Optional[Axes] = None) -> Tuple[Figure, Axes]:
     """Plot ray paths between transmitter and receiver with interaction points.
     
     For a given user, plots all ray paths connecting TX and RX through their
@@ -297,14 +298,20 @@ def plot_rays(rx_loc: np.ndarray, tx_loc: np.ndarray, inter_pos: np.ndarray,
             ignore the interaction type.
         inter_obj_labels (Optional[list[str]], optional): Labels for the interaction objects. Defaults to None.
             If provided, will use these labels instead of the object ids.
+        ax (Optional[Axes], optional): Matplotlib Axes object. Defaults to None. When provided,
+            the figure and axes are not created.
+            
     Returns:
         Tuple containing:
         - matplotlib Figure object
         - matplotlib Axes object
     """
-    fig, ax = plt.subplots(figsize=figsize, dpi=dpi,
-                           subplot_kw={'projection': '3d'} if proj_3D else {})
-    
+    if not ax:
+        fig, ax = plt.subplots(dpi=dpi, figsize=figsize,
+                               subplot_kw={'projection': '3d'} if proj_3D else {})
+    else:
+        fig = ax.figure
+
     # Ensure inputs are numpy arrays and have correct shape
     rx_loc = np.asarray(rx_loc)  # Shape: (3,)
     tx_loc = np.asarray(tx_loc)  # Shape: (3,)
