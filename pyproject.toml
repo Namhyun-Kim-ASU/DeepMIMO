@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "DeepMIMO"
-version = "4.0.0b3"
+version = "4.0.0b5"
 authors = [
     { name = "João Morais" },
     { name = "Umut Demirhan" },
@@ -25,10 +25,7 @@ classifiers = [
 dependencies = [
     "matplotlib>=3.8.2",
     "numpy>=1.19.5,<2.3",
-    "scipy>=1.6.2,!=1.15.2", # only used for saving matrices compatible with matlab
-                             # !=1.15.2 is because of numpy wheels incompatibility
-                             # can be removed in a few months when 
-                             # 1.16 is installed by default
+    "scipy>=1.6.2",
     "tqdm>=4.59.0",
     "requests"
 ]
