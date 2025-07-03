@@ -69,6 +69,37 @@ def get_uniform_idxs(n_ue: int, grid_size: np.ndarray, steps: List[int]) -> np.n
     
     return idxs
 
+def get_grid_idxs(grid_size: np.ndarray, axis: str, idxs: list[int] | np.ndarray) -> np.ndarray:
+    """Return indices of users in the specified rows or columns, assuming a grid structure.
+    
+    Args:
+        grid_size: Grid size as [x_size, y_size] where x_size is number of columns and y_size is number of rows
+        axis: Either 'row' or 'col' to specify which indices to get
+        idxs: Array of row or column indices to include
+
+    Returns:
+        Array of indices of receivers in the specified rows or columns
+        
+    Raises:
+        ValueError: If axis is not 'row' or 'col'
+    """
+    if axis not in ['row', 'col']:
+        raise ValueError("axis must be either 'row' or 'col'")
+        
+    indices = []
+    if axis == 'row':
+        # Each row contains grid_size[0] elements (number of columns)
+        for row in idxs:
+            row_start = row * grid_size[0]
+            row_indices = np.arange(row_start, row_start + grid_size[0])
+            indices.extend(row_indices)
+    else:  # axis == 'col'
+        # Each column contains grid_size[1] elements
+        for col in idxs:
+            col_indices = col + np.arange(grid_size[1]) * grid_size[0]
+            indices.extend(col_indices)
+            
+    return np.array(indices)
 
 class LinearPath:
     """Class for creating and analyzing linear paths through DeepMIMO datasets.
