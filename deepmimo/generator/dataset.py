@@ -911,6 +911,43 @@ class Dataset(DotDict):
                 
         return new_dataset
 
+    def _clear_all_caches(self) -> None:
+        """Clear all caches."""
+        self._clear_cache_core()
+        self._clear_cache_rotated_angles()
+        self._clear_cache_fov()
+        self._clear_cache_doppler()
+
+    def _clear_cache_core(self) -> None:
+        """Clear all cached attributes that don't have dedicated clearing functions.
+        
+        This includes:
+        - Line of sight status
+        - Number of paths
+        - Number of interactions
+        - Channel matrices
+        - Powers with antenna gain
+        - Inter-object related attributes
+        - Other computed attributes
+        """
+        # Define cache keys for attributes without dedicated clearing functions
+        cache_keys = {
+            # Core computed attributes
+            c.NUM_PATHS_PARAM_NAME,
+            c.LOS_PARAM_NAME,
+            c.NUM_INTERACTIONS_PARAM_NAME,
+            c.MAX_INTERACTIONS_PARAM_NAME,
+            c.INTER_STR_PARAM_NAME,
+            c.INTER_INT_PARAM_NAME,
+            c.CHANNEL_PARAM_NAME,
+            c.PWR_LINEAR_ANT_GAIN_PARAM_NAME,
+            c.INTER_OBJECTS_PARAM_NAME
+        }
+        
+        # Remove all cache keys at once
+        for k in cache_keys & self.keys():
+            super().__delitem__(k)
+
     def _trim_by_path(self, path_mask: np.ndarray) -> 'Dataset':
         """Helper function to trim paths based on a boolean mask.
         
@@ -921,7 +958,7 @@ class Dataset(DotDict):
             A new Dataset with trimmed paths.
         """
         # Create a new dataset with the same structure
-        new_dataset = self.deepcopy()
+        aux_dataset = self.deepcopy()
         
         # List of fundamental arrays that need to be trimmed
         path_arrays = [
@@ -938,7 +975,7 @@ class Dataset(DotDict):
         
         # Set invalid paths to NaN
         for array_name in path_arrays:
-            new_dataset[array_name][~path_mask] = np.nan
+            aux_dataset[array_name][~path_mask] = np.nan
         
         # Create new order for each user: valid paths first, then invalid paths
         new_order = np.argsort(~path_mask, axis=1)  # False (valid) comes before True (invalid)
@@ -947,23 +984,23 @@ class Dataset(DotDict):
         for array_name in path_arrays:
             if array_name == c.INTERACTIONS_POS_PARAM_NAME:
                 # Handle 4D array (n_users, n_paths, n_interactions, 3)
-                new_dataset[array_name] = np.take_along_axis(new_dataset[array_name], new_order[:, :, None, None], axis=1)
+                aux_dataset[array_name] = np.take_along_axis(aux_dataset[array_name], new_order[:, :, None, None], axis=1)
             else:
                 # Handle 2D arrays (n_users, n_paths)
-                new_dataset[array_name] = np.take_along_axis(new_dataset[array_name], new_order, axis=1)
+                aux_dataset[array_name] = np.take_along_axis(aux_dataset[array_name], new_order, axis=1)
         
         # Compress arrays to remove unused paths
-        data_dict = {k: v for k, v in new_dataset.items() if isinstance(v, np.ndarray)}
+        data_dict = {k: v for k, v in aux_dataset.items() if isinstance(v, np.ndarray)}
         compressed_data = cu.compress_path_data(data_dict)
         
         # Update dataset with compressed arrays
         for key, value in compressed_data.items():
-            new_dataset[key] = value
+            aux_dataset[key] = value
         
-        # Reset computed attributes
-        new_dataset._computed_attributes = {}  # Clear computed attributes
+        # Clear all caches since we modified fundamental data
+        aux_dataset._clear_all_caches()
         
-        return new_dataset
+        return aux_dataset
 
     def _trim_by_index(self, idxs: np.ndarray) -> 'Dataset':
         """Rename previous subset function.

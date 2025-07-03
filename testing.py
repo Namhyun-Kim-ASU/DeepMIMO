@@ -15,30 +15,9 @@ rt_folder = './RT_SOURCES/asu_campus'
 scen_name = os.path.basename(rt_folder)
 dm.convert(rt_folder, overwrite=True, scenario_name=scen_name, vis_scene=True)
 
-#%% Trimming by path type
+#%%
 
 dataset = dm.load('asu_campus_3p5')
-
-# dataset_t = dataset.trim_by_path_depth(1)
-dataset_t = dataset.trim_by_path_type(['LoS', 'R'])
-
-dataset.plot_coverage(dataset.los, title='Full dataset')
-dataset_t.plot_coverage(dataset_t.los, title='Trimmed dataset')
-
-# Num interactions
-dataset.plot_coverage(dataset.num_interactions[:,0], title='Number of interactions')
-dataset_t.plot_coverage(dataset_t.num_interactions[:,0], title='Number of interactions')
-
-# Num paths
-dataset.plot_coverage(dataset.num_paths, title='Number of paths')
-dataset_t.plot_coverage(dataset_t.num_paths, title='Number of paths')
-
-# Interaction type
-dataset_t.plot_coverage(dataset_t.inter[:,0], title='Interaction type')
-
-# Plot rays
-dataset_t.plot_rays(9)
-
 
 #%% PLOT RAYS with BUILDINGS
 
