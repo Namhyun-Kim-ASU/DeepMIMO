@@ -84,9 +84,7 @@ See the <a href="../manual_full.html#user-sampling">User Sampling Section</a> of
 
 .. autofunction:: deepmimo.generator.generator_utils.get_idxs_with_limits
 
-.. autofunction:: deepmimo.generator.dataset.Dataset.get_row_idxs
-
-.. autofunction:: deepmimo.generator.dataset.Dataset.get_col_idxs
+.. autofunction:: deepmimo.generator.generator_utils.get_grid_idxs
 
 .. autoclass:: deepmimo.generator.generator_utils.LinearPath
    :members:
