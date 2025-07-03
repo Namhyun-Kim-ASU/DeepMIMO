@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.colorbar import Colorbar
-from matplotlib.colors import ListedColormap
+from matplotlib.colors import Colormap, ListedColormap
 
 
 def _create_colorbar(scatter_plot: plt.scatter, cov_map: np.ndarray, cmap: str,
@@ -127,7 +127,7 @@ def plot_coverage(rxs: np.ndarray, cov_map: tuple[float, ...] | list[float] | np
         - matplotlib Axes object
         - matplotlib Colorbar object
     """
-    cmap = cmap if isinstance(cmap, str) else ListedColormap(cmap)
+    cmap = cmap if isinstance(cmap, (str, Colormap)) else ListedColormap(cmap)
     plt_params = {'cmap': cmap}
     if lims:
         plt_params['vmin'], plt_params['vmax'] = lims[0], lims[1]
