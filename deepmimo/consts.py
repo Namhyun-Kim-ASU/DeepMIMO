@@ -210,7 +210,7 @@ DIST_PARAM_NAME = 'distance'
 INTER_STR_PARAM_NAME = 'inter_str'
 INTER_INT_PARAM_NAME = 'inter_int'
 N_UE_PARAM_NAME = 'n_ue'
-NUM_INTERACTIONS_PARAM_NAME = 'num_interactions'
+NUM_INTERACTIONS_PARAM_NAME = 'num_inter'
 NUM_PATHS_FOV_PARAM_NAME = '_num_paths_fov'  # Number of paths within FoV for each user
 DOPPLER_PARAM_NAME = 'doppler'  # Doppler frequency shifts [Hz] for each user and path
 INTER_OBJECTS_PARAM_NAME = 'inter_obj'  # Object ids at each interaction point
@@ -309,7 +309,8 @@ DATASET_ALIASES = {
     # Path count aliases
     'n_paths': NUM_PATHS_PARAM_NAME,
     
-    # Max interactions aliases
+    # Number & max interactions aliases
+    'num_interactions': NUM_INTERACTIONS_PARAM_NAME,
     'max_interactions': MAX_INTERACTIONS_PARAM_NAME,
     
     # Time of arrival aliases
