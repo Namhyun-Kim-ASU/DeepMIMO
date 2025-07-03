@@ -46,6 +46,12 @@ idxs = dm.get_uniform_idxs(
     steps=[2, 2]         # Sampling steps
 )
 
+# Get indices for specific rows in a grid dataset (if it's a grid)
+idxs = dataset.get_row_idxs(np.arange(40, 60))  # Get rows 40-59
+
+# Get indices for specific columns in a grid dataset (if it's a grid)
+idxs = dataset.get_col_idxs(np.arange(40, 60))  # Get columns 40-59
+
 # Get positions within limits
 idxs = dm.get_idxs_with_limits(
     data_pos,
@@ -77,6 +83,10 @@ See the <a href="../manual_full.html#user-sampling">User Sampling Section</a> of
 .. autofunction:: deepmimo.generator.generator_utils.get_uniform_idxs
 
 .. autofunction:: deepmimo.generator.generator_utils.get_idxs_with_limits
+
+.. autofunction:: deepmimo.generator.dataset.Dataset.get_row_idxs
+
+.. autofunction:: deepmimo.generator.dataset.Dataset.get_col_idxs
 
 .. autoclass:: deepmimo.generator.generator_utils.LinearPath
    :members:
