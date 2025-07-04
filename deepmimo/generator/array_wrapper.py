@@ -79,6 +79,7 @@ class DeepMIMOArray(np.ndarray):
         
         # Preserve dataset reference through operations like slicing
         self.dataset = getattr(obj, 'dataset', None)
+        self.name = getattr(obj, 'name', None)
     
     def plot(self, path_idx: int = 0, interaction_idx: int = 0, **kwargs) -> None:
         """Plot the array using plot_coverage.
