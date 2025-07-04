@@ -162,7 +162,7 @@ scene.plot(mode='faces')  # Use convex hull representation
 scene.plot(mode='tri_faces')  # Use triangular representation
 
 # 2D top-down view
-scene.plot(proj_2d=True)
+scene.plot(proj_3D=False)
 ```
 
 ```{eval-rst}

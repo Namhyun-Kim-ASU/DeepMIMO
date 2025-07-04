@@ -726,13 +726,13 @@ class Scene:
         return scene
     
     def plot(self, title: bool = True, mode: Literal['faces', 'tri_faces'] = 'faces', 
-             ax: Optional[plt.Axes] = None, proj_2d: bool = False, figsize: tuple = (10, 10), 
+             ax: Optional[plt.Axes] = None, proj_3D: bool = True, figsize: tuple = (10, 10), 
              dpi: int = 100, legend: bool = False) -> plt.Axes:
         """Create a visualization of the scene.
         
         The scene can be visualized in either 2D (top-down view) or 3D mode:
         
-        3D Mode (proj_2d=False):
+        3D Mode (proj_3D=True):
             Two representation options:
             1. 'faces' (default) - Uses the primary convex hull representation
             - More efficient for visualization
@@ -744,7 +744,7 @@ class Scene:
             - Better for debugging geometric issues
             - More accurate representation of complex shapes
                
-        2D Mode (proj_2d=True):
+        2D Mode (proj_3D=False):
             Creates a top-down view showing object footprints:
             - Projects all objects onto x-y plane
             - Uses convex hulls for efficient visualization
@@ -757,7 +757,7 @@ class Scene:
             filename: Name of the file to save the plot to (if save is True)
             mode: Visualization mode for 3D - either 'faces' or 'tri_faces' (default: 'faces')
             ax: Matplotlib axes to plot on (if None, creates new figure)
-            proj_2d: Whether to create a 2D projection (top-down view) (default: False)
+            proj_3D: Whether to create 3D projection (default: True)
             figsize: Figure dimensions (width, height) in inches (default: (10, 10))
             dpi: Plot resolution in dots per inch (default: 100)
             
@@ -766,7 +766,7 @@ class Scene:
         """
         if ax is None:
             _, ax = plt.subplots(figsize=figsize, dpi=dpi,
-                               subplot_kw={'projection': None if proj_2d else '3d'})
+                                 subplot_kw={'projection': '3d' if proj_3D else None})
         
         # Group objects by label
         label_groups = {}
@@ -792,7 +792,10 @@ class Scene:
                 # Determine color (same for faces and hull)
                 color = obj.color or colors[obj_idx]
                 
-                if proj_2d:
+                if proj_3D:
+                    # Plot object with specified 3D mode
+                    obj.plot(ax, mode=mode, alpha=vis_settings['alpha'], color=color)
+                else:
                     # Project vertices to 2D (x-y plane)
                     vertices_2d = obj.vertices[:, :2]
                     
@@ -804,29 +807,25 @@ class Scene:
                     ax.fill(hull_vertices[:, 0], hull_vertices[:, 1],
                             alpha=vis_settings['alpha'], color=color,
                             label=label if obj_idx == 0 else "")
-                else:
-                    # Plot object with specified 3D mode
-                    obj.plot(ax, mode=mode, alpha=vis_settings['alpha'], color=color)
-        
         # Set axis labels
         ax.set_xlabel('X (m)')
         ax.set_ylabel('Y (m)')
-        if not proj_2d:
+        if proj_3D:
             ax.set_zlabel('Z (m)')
         
         if title:
             ax.set_title(self._get_title_with_counts())
         
-        if proj_2d:
-            # Set equal aspect ratio for proper scaling in 2D
-            ax.set_aspect('equal')
-            # Add grid for 2D view
-            ax.grid(True, alpha=0.3)
-        else:
+        if proj_3D:
             # Set the view angle for better 3D perspective
             ax.view_init(elev=40, azim=-45)
             # Set 3D axes limits to scale
             self._set_axes_lims_to_scale(ax)
+        else:
+            # Set equal aspect ratio for proper scaling in 2D
+            ax.set_aspect('equal')
+            # Add grid for 2D view
+            ax.grid(True, alpha=0.3)
         
         # Add legend if there are multiple labels
         if len(label_groups) > 1 and legend:

@@ -68,7 +68,7 @@ seq_idxs2 = dm.LinearPath(dataset.rx_pos, [150, 85], [-120, 85], n_steps=200).id
 seq_idxs = np.concatenate([seq_idxs1, seq_idxs2])
 
 n = 8
-ax = dataset.scene.plot(dpi=300, proj_2d=True, title='')
+ax = dataset.scene.plot(dpi=300, proj_3D=False, title='')
 ax.scatter(dataset.rx_pos[seq_idxs[::n], 0], dataset.rx_pos[seq_idxs[::n], 1],
            s=40, facecolors=(1, 0, 0, 0.5), edgecolors='black', 
            label='User Positions')
@@ -79,19 +79,14 @@ plt.savefig("dm_scene_doppler_static.png")
 
 #%% Doppler Sequence (Dynamic)
 
-proj_2d = True
-ax = dataset.scene.plot(dpi=300, proj_2d=proj_2d, title='')
+proj_3D = True
+ax = dataset.scene.plot(dpi=300, proj_3D=proj_3D, title='')
 # plt.xlim((0, 200))
 # plt.ylim((0, 200))
-dataset.plot_rays(16816, ax=ax, proj_3D = not proj_2d)
+dataset.plot_rays(16816, ax=ax, proj_3D=proj_3D)
 # Option 1: Directly Edit objects in the scene
 #    - delete unnecessary buildings
 #    - reduce the size of the size of the floor
 # Option 2: Add arguments in the scene.plot() to only include objects within the ranges
 
 # plt.savefig("dm_scene.png", transparent=True)
-
-#%% Plot 3D WITH RAYS
-
-
-dataset.plot_rays(seq_idxs1[92])

@@ -112,7 +112,7 @@ for timestep in range(n_steps):
 
 	# Test Conversion
 	dataset = dm.load(scen_name)
-	dataset.scene.plot(proj_2d=True)
+	dataset.scene.plot(proj_3D=False)
 	# dataset.plot_coverage(dataset.los, scat_sz=40)
 	# dataset.plot_coverage(dataset.pwr[:, 0], scat_sz=40)
     

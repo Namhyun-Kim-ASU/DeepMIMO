@@ -233,7 +233,7 @@ def plot_summary(scenario_name: str | None = None, save_imgs: bool = False,
 
             tx_set = [s for s in txrx_sets if s.is_tx][0]
             n_bs = tx_set.num_points
-            ax = dataset.scene.plot(title=False, proj_2d=True)
+            ax = dataset.scene.plot(title=False, proj_3D=False)
             bs_colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange']
             for bs in range(n_bs):
                 if bs == 0 and n_bs == 1:
