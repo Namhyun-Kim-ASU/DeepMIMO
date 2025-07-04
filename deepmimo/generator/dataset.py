@@ -96,7 +96,7 @@ class Dataset(DotDict):
     and dictionary notation (dataset['channel']).
     
     Primary (Static) Attributes:
-        power: Path powers in dBm
+        power: Path powers in dBW
         phase: Path phases in degrees
         delay: Path delays in seconds (i.e. propagation time)
         aoa_az/aoa_el: Angles of arrival (azimuth/elevation)
@@ -147,7 +147,7 @@ class Dataset(DotDict):
     WRAPPABLE_ARRAYS = [
         'power', 'phase', 'delay', 'aoa_az', 'aoa_el', 'aod_az', 'aod_el',
         'inter', 'los', 'channel', 'power_linear', 'pathloss', 'distance',
-        'num_paths', 'inter_str', 'doppler', 'inter_obj'
+        'num_paths', 'inter_str', 'doppler', 'inter_obj', 'inter_int'
     ]
     
     def _wrap_array(self, key: str, value: Any) -> Any:
@@ -161,9 +161,11 @@ class Dataset(DotDict):
             The original value or a wrapped DeepMIMOArray
         """
         if isinstance(value, np.ndarray) and key in self.WRAPPABLE_ARRAYS:
+            if value.ndim == 0:
+                return value
             # Only wrap arrays that have num_rx in first dimension
-            if value.shape[0] == self.n_ue and not isinstance(value, DeepMIMOArray):
-                return DeepMIMOArray(value, self)
+            if value.shape[0] == self.n_ue:
+                return DeepMIMOArray(value, self, key)
         return value
 
     def __getitem__(self, key: str) -> Any:

@@ -6,9 +6,31 @@ This module provides a custom array class that wraps numpy arrays and adds plott
 
 import numpy as np
 from typing import TYPE_CHECKING, Optional, Any
-from .visualization import plot_coverage
 
 Dataset = 'Dataset' if TYPE_CHECKING else Any
+
+COLORBAR_TITLES = {
+    'power': 'Power (dBW)', 
+    'phase': 'Phase (deg)', 
+    'delay': 'Delay (s)', 
+    'aoa_az': 'AoA Azimuth (deg)', 
+    'aoa_el': 'AoA Elevation (deg)', 
+    'aod_az': 'AoD Azimuth (deg)', 
+    'aod_el': 'AoD Elevation (deg)',
+    'los': 'Line of Sight Status',
+    'inter': 'Interaction Status\n' + 
+             '0:LOS, 1:R, 2:D, 3:S, 4:T', 
+    'doppler': 'Doppler Frequency (Hz)',
+    'num_paths': 'Number of Paths',
+    'distance': 'Distance (m)',
+    'pathloss': 'Path Loss (dB)',
+    'power_linear': 'Power (W)',
+    'inter_str': 'Interaction String',
+    'inter_obj': 'Interaction Object ID',
+    'inter_int': 'Interaction Integer\n' + 
+                 '-1: no path, 0: LOS, 1:R, 2:D, 3:S, 4:T',
+    
+}
 
 class DeepMIMOArray(np.ndarray):
     """A wrapper around numpy.ndarray that adds plotting functionality.
@@ -22,7 +44,7 @@ class DeepMIMOArray(np.ndarray):
     - 3D arrays [num_rx, num_paths, max_interactions]: Plots specified path and interaction indices
     """
     
-    def __new__(cls, input_array: np.ndarray, dataset: Dataset) -> 'DeepMIMOArray':
+    def __new__(cls, input_array: np.ndarray, dataset: Dataset, name: str) -> 'DeepMIMOArray':
         """Create a new DeepMIMOArray instance.
         
         This is called when creating new arrays. We need __new__ instead of __init__
@@ -40,7 +62,7 @@ class DeepMIMOArray(np.ndarray):
         
         # Add the dataset reference
         obj.dataset = dataset
-        
+        obj.name = name
         return obj
     
     def __array_finalize__(self, obj: Optional[np.ndarray]) -> None:
@@ -89,6 +111,10 @@ class DeepMIMOArray(np.ndarray):
                 "- 2D arrays [num_rx, num_paths]\n"
                 "- 3D arrays [num_rx, num_paths, max_interactions]"
             )
-            
+        
+        if not 'cbar_title' in kwargs:
+            if self.name in COLORBAR_TITLES:
+                kwargs['cbar_title'] = COLORBAR_TITLES[self.name]
+
         # Use dataset's plot_coverage method directly
         self.dataset.plot_coverage(data, **kwargs) 

@@ -3,7 +3,7 @@ Utilities Module for DeepMIMO Dataset Processing.
 
 This module provides utility functions and classes for processing DeepMIMO datasets,
 including:
-- Unit conversions (dBm to Watts)
+- Unit conversions (dBW to Watts)
 - Array steering vector calculations
 - Path analysis and feature extraction
 - Position sampling and filtering utilities
