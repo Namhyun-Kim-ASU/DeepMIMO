@@ -173,7 +173,7 @@ class Dataset(DotDict):
         try:
             value = super().__getitem__(key)
         except KeyError:
-            value = self._resolve_key(key)
+            value, key = self._resolve_key(key)
         return self._wrap_array(key, value)
             
     def __getattr__(self, key: str) -> Any:
@@ -181,7 +181,7 @@ class Dataset(DotDict):
         try:
             value = super().__getitem__(key)
         except KeyError:
-            value = self._resolve_key(key)
+            value, key = self._resolve_key(key)
         return self._wrap_array(key, value)
 
     def _resolve_key(self, key: str) -> Any:
@@ -196,7 +196,7 @@ class Dataset(DotDict):
             key: The key to resolve
             
         Returns:
-            The resolved value
+            The resolved value, and the key that was resolved
             
         Raises:
             KeyError if key cannot be resolved
@@ -206,7 +206,7 @@ class Dataset(DotDict):
         if resolved_key != key:
             key = resolved_key
             try:
-                return super().__getitem__(key)
+                return super().__getitem__(key), key
             except KeyError:
                 pass
             
@@ -219,7 +219,7 @@ class Dataset(DotDict):
                 self.update(value)
             else:
                 self[key] = value
-            return value
+            return value, key
         
         raise KeyError(key)
     
