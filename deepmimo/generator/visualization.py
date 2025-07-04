@@ -376,10 +376,13 @@ def plot_rays(rx_loc: np.ndarray, tx_loc: np.ndarray, inter_pos: np.ndarray,
         
         # Check if this is a LoS path
         is_los = len(path_interactions) == 0
-        plt_color = 'g' if is_los else 'r'
+        if is_los:
+            plot_line(path_points[0], path_points[1], color='g', label='LoS', alpha=0.5, zorder=1)
+            continue
+        
         # Plot the ray path segments
         for i in range(len(path_points)-1):
-            plot_line(path_points[i], path_points[i+1], color=plt_color, alpha=0.5, zorder=1)
+            plot_line(path_points[i], path_points[i+1], color='r', alpha=0.5, zorder=1)
         
         # Plot interaction points
         if len(path_interactions) > 0:  # If there are interaction points
