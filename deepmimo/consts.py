@@ -326,6 +326,7 @@ DATASET_ALIASES = {
     
     # Interaction object aliases
     'inter_objects': INTER_OBJECTS_PARAM_NAME,
+    'inter_objs': INTER_OBJECTS_PARAM_NAME,
     'inter_object_ids': INTER_OBJECTS_PARAM_NAME,
     'inter_obj_ids': INTER_OBJECTS_PARAM_NAME,
 
