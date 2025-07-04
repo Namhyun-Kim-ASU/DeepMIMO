@@ -81,8 +81,12 @@ def _create_colorbar(scatter_plot: plt.scatter, cov_map: np.ndarray, cmap: str,
                             boundaries=np.arange(-0.5, n_cats + 0.5),
                             values=np.arange(n_cats))
         
+        # Try to make labels more readable into integers (if value range is large)
+        val_range = np.max(unique_vals) - np.min(unique_vals)
+        str_labels = [str(int(val))  if val_range > 100 else str(val) for val in unique_vals]
+        
         # Set tick labels
-        cbar.set_ticklabels(cat_labels if cat_labels else [str(val) for val in unique_vals])
+        cbar.set_ticklabels(cat_labels if cat_labels else str_labels)
     else:  # Use continuous colorbar for many unique values
         cbar = fig.colorbar(scatter_plot, ax=ax, label=cbar_title)
     
