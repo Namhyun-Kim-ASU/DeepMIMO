@@ -217,10 +217,9 @@ class Dataset(DotDict):
             # Cache the result
             if isinstance(value, dict):
                 self.update(value)
-                return super().__getitem__(key)
             else:
                 self[key] = value
-                return value
+            return value
         
         raise KeyError(key)
     
