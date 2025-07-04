@@ -52,7 +52,7 @@ def _create_colorbar(scatter_plot: plt.scatter, cov_map: np.ndarray, cmap: str,
         raise ValueError(f"Number of category labels ({len(cat_labels)}) "
                          f"must match number of unique values ({n_cats})")
     
-    if n_cats < 10 or cat_labels:  # Use discrete colorbar for small number of unique values
+    if n_cats < 30 or cat_labels:  # Use discrete colorbar for small number of unique values
         # Create discrete colormap
         if isinstance(cmap, str):
             # Get base colors from the colormap
