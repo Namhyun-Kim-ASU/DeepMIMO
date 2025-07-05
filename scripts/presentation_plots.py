@@ -206,8 +206,8 @@ plt.rcdefaults()
 plt.rcParams['xtick.color'] = 'white'
 plt.rcParams['ytick.color'] = 'white'
 plt.rcParams['axes.labelcolor'] = 'white'
-proj_3D = False
-folder = f"dm_scene_doppler_dynamic4_{'3D' if proj_3D else '2D'}"
+proj_3D = True
+folder = f"dm_scene_doppler_dynamic_static_{'3D' if proj_3D else '2D'}"
 os.makedirs(folder, exist_ok=True)
 
 s = 200 # terrain size in meters (width and length)
@@ -240,8 +240,8 @@ dataset.scene.objects = bldgs_in_range + [terrain]
 for i, usr_idx in enumerate(seq_idxs[::4]):
     usr_pos = dataset.rx_pos[usr_idx]
     
-    _, ax = dataset.plot_rays(usr_idx, proj_3D=proj_3D)
-    dataset.scene.plot(dpi=300, proj_3D=proj_3D, title='', ax=ax)
+    _, ax = dataset.plot_rays(usr_idx, proj_3D=proj_3D, dpi=300)
+    dataset.scene.plot(proj_3D=proj_3D, title='', ax=ax)
     
     # Add coverage map (Matplotlib has issues with 3D plots)
     if not proj_3D:
@@ -270,10 +270,10 @@ import subprocess
 subprocess.run([
     "ffmpeg",
     "-y", # overwrite if file exists
-    "-framerate", "20",
+    "-framerate", "15",
     "-i", f"{folder}/%d.png",
     "-filter_complex",
-    "[0]format=rgba[fg];color=black:s=1000x800:d=5[bg];[bg][fg]overlay=format=auto",
+    "[0]format=rgba[fg];color=black:s=3000x2400:d=5[bg];[bg][fg]overlay=format=auto",
     "-c:v", "libx264",
     "-pix_fmt", "yuv420p",
     f"{folder}/output.mp4"
