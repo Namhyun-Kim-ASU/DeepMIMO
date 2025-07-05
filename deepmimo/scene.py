@@ -50,7 +50,6 @@ from .consts import SCENE_PARAM_NUMBER_SCENES
 from .general_utils import (
     load_dict_from_json,
     save_dict_as_json,
-    cartesian_to_spherical,
     DelegatingList
 )
 
@@ -550,9 +549,9 @@ class Scene:
     DEFAULT_VISUALIZATION_SETTINGS = {
         CAT_TERRAIN: {'z_order': 1, 'alpha': 0.1, 'color': 'black'},
         CAT_VEGETATION: {'z_order': 2, 'alpha': 0.8, 'color': 'green'},
-        CAT_BUILDINGS: {'z_order': 3, 'alpha': 0.8, 'color': None},  # use random color
+        CAT_BUILDINGS: {'z_order': 3, 'alpha': 0.6, 'color': None},  # use random color
         CAT_FLOORPLANS: {'z_order': 4, 'alpha': 0.8, 'color': 'blue'},
-        CAT_OBJECTS: {'z_order': 5, 'alpha': 0.8, 'color': 'blue'}
+        CAT_OBJECTS: {'z_order': 5, 'alpha': 0.8, 'color': 'red'}
     }
     
     def __init__(self):
