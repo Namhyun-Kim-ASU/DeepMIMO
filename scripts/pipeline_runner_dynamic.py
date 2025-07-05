@@ -22,7 +22,7 @@ from deepmimo.pipelines.utils.pipeline_utils import get_origin_coords, load_para
 
 from deepmimo.pipelines.sionna_rt.sionna_raytracer import raytrace_sionna
 
-from scripts.pipeline_params import *
+from scripts.pipeline_params import p
 
 # Absolute (!) Paths
 OSM_ROOT = os.path.join(os.getcwd(), "osm_root")

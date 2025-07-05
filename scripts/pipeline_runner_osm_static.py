@@ -42,6 +42,8 @@ dm.config('wireless_insite_version', "4.0.1")  # E.g. '3.3.0', '4.0.1'
 # from deepmimo.pipelines.wireless_insite.insite_raytracer import raytrace_insite
 from deepmimo.pipelines.sionna_rt.sionna_raytracer import raytrace_sionna
 
+from scripts.pipeline_params import p
+
 # Absolute (!!) Paths
 # OSM_ROOT = "/home/jamorais/osm_root" # Windows
 # OSM_ROOT = OSM_ROOT.replace('C:', '/mnt/c') # WSL

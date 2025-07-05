@@ -30,6 +30,7 @@ from deepmimo.pipelines.sionna_rt.sionna_raytracer import raytrace_sionna
 # Absolute (!!) Paths
 OUT_FOLDER = os.path.join(os.getcwd(), "osm_root")
 
+from scripts.pipeline_params import p
 
 #%% Run pipeline
 
