@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "DeepMIMO"
-version = "4.0.0b5"
+version = "4.0.0b8"
 authors = [
     { name = "João Morais" },
     { name = "Umut Demirhan" },
@@ -39,6 +39,12 @@ Homepage = "https://deepmimo.net/"
 
 [project.optional-dependencies]
 
+dev = [
+    "build",
+    "jupyter",
+    "twine==6.0.1",
+]
+
 doc = [
     "sphinx>=7.2.6,<8.0.0",                      # Stable Sphinx
     "myst-parser",                               # Avoids footnote detector error
@@ -58,12 +64,26 @@ doc = [
 
     # Themes
     "sphinx-rtd-theme>=2.0.0",                   # RTD theme
-    "furo",                                      # Works with 2024.8.6
+    # "furo",                                      # Works with 2024.8.6
 ]
 
 aodt = [
     "pandas",   # to read parquet files
     "pyarrow",  # backend for pandas parquet reading 
+]
+
+insite = [
+    # Common ray tracing pipeline tools
+    "utm",               # To be replaced by built-in (see geo_utils.py)
+    "lxml",              # To be replaced by built-in (see insite_raytracer.py)
+    "pandas",
+    "shapely",           # Used to create building polygons (see pipeline_csv_gen.py)
+    "bpy==3.6.0; python_version == '3.10'",
+    "bpy==4.4.0; python_version == '3.11'",
+    "numpy<2.0; python_version == '3.11'",
+
+    # InSite Specific
+    "plyfile",           # To read blender ply exports for insite_raytracer.py
 ]
 
 sionna = [
@@ -76,9 +96,6 @@ sionna = [
     "bpy==4.4.0; python_version == '3.11'",
     "numpy<2.0; python_version == '3.11'",
 
-    # InSite Specific
-    "plyfile",           # To read blender ply exports for insite_raytracer.py
-    
     # Sionna 1.0 specific
     "sionna-rt==1.0.2",  # Sionna Ray Tracer (pins "mitsuba==3.6.2")
 
@@ -96,9 +113,6 @@ sionna019 = [
      "bpy==4.4.0; python_version == '3.11'",
      "numpy<2.0; python_version == '3.11'",
  
-     # InSite Specific
-     "plyfile",
-     
      # Other Requirements (to ensure suitable binaries)
      "numpy<2.0",
  
@@ -133,7 +147,7 @@ sionna019 = [
      "nvidia-nvjitlink-cu12==12.2.140"
 ]
 
-# Combination of [sionna1] and [docs]
+# Combination of [dev], [docs], [sionna1], [insite] and [aodt]
 all = [
     # Common ray tracing pipeline tools
     "utm",               
@@ -169,5 +183,14 @@ all = [
     "sphinx-automodapi>=0.15.0",
     "nbsphinx>=0.9.0",
     "ipykernel>=6.0.0"
-    
 ]
+
+# TODO: check which are more updated, the packages in [all] or in [doc]
+#       & Update the other
+#doc = [
+#    "sphinx>=7.2.6,<8.0.0",
+#    "myst-parser",
+#    "myst-nb>=0.17.2",
+#    "sphinxext-opengraph>=0.8.0",
+#    "sphinx-design>=0.4.1",
+#]
