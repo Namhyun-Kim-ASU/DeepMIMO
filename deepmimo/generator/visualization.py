@@ -193,7 +193,7 @@ def plot_coverage(rxs: np.ndarray, cov_map: tuple[float, ...] | list[float] | np
     if equal_aspect: # often disrups the plot if in 3D.
         ax.set_aspect('equal')
     
-    return fig, ax, cbar
+    return ax, cbar
 
 def transform_coordinates(coords, lon_max, lon_min, lat_min, lat_max):
     """Transform Cartesian coordinates to geographical coordinates.
@@ -432,7 +432,7 @@ def plot_rays(rx_loc: np.ndarray, tx_loc: np.ndarray, inter_pos: np.ndarray,
         ax.set_aspect('equal')
     
     ax.grid()
-    return fig, ax
+    return ax
 
 def plot_power_discarding(dataset, trim_delay: Optional[float] = None) -> Tuple[Figure, Axes]:
     """Analyze and visualize power discarding due to path delays.
