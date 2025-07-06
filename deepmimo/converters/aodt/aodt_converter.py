@@ -33,9 +33,9 @@ from .aodt_materials import read_materials
 from .aodt_scene import read_scene
 
 def aodt_rt_converter(rt_folder: str, copy_source: bool = False,
-                     overwrite: Optional[bool] = None, vis_scene: bool = True, 
-                     scenario_name: str = '', print_params: bool = True,
-                     parent_folder: str = '', num_scenes: int = 1) -> str:
+                      overwrite: Optional[bool] = None, vis_scene: bool = True, 
+                      scenario_name: str = '', print_params: bool = True,
+                      parent_folder: str = '', num_scenes: int = 1) -> str:
     """Convert AODT ray-tracing data to DeepMIMO format.
 
     This function handles the conversion of AODT ray-tracing simulation 

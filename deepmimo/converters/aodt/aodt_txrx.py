@@ -297,6 +297,23 @@ def read_receivers(rt_folder: str, panels: Dict[str, Any]) -> List[Dict[str, Any
         receivers.append(rx)
     return receivers
 
+def is_dynamic(rt_params: Dict[str, Any]) -> bool:
+    """Check if the scenario is dynamic.
+    
+    Args:
+        rt_params (Dict[str, Any]): Ray tracing parameters dictionary.
+        
+    Returns:
+        bool: True if the scenario is dynamic, False otherwise.
+    """
+    # check batches
+    # 'num_batches': 1, 'slots_per_batch': 0, 'symbols_per_slot': 0, 'duration': 2.0, 'interval': 1.0,
+    raw_params = rt_params.get('raw_params', {})
+    if raw_params.get('slots_per_batch', 0) > 0: # use slots per batch timing
+        return raw_params.get('num_batches', 1) * raw_params.get('slots_per_batch', 1) > 1
+    else: # use duration and interval timing
+        return raw_params.get('duration', 0) // raw_params.get('interval', 0) > 1
+
 def read_txrx(rt_folder: str, rt_params: Dict[str, Any]) -> Dict[str, Any]:
     """Read transmitter and receiver configurations.
 
@@ -340,7 +357,11 @@ def read_txrx(rt_folder: str, rt_params: Dict[str, Any]) -> Dict[str, Any]:
     first_rx = receivers[0]
     
     # Get initial positions from route data (time_idx = 0)
-    time_idx = int(os.path.basename(rt_folder).split('_')[-1])
+    if is_dynamic(rt_params):
+        time_idx = int(os.path.basename(rt_folder).split('_')[-1])
+    else:
+        time_idx = 0
+    
     rx_positions = [au.process_points(rx['mobility']['route']['positions'][0])[time_idx] 
                     for rx in receivers]
     
