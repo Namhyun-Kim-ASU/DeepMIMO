@@ -214,12 +214,13 @@ class Dataset(DotDict):
             compute_method_name = self._computed_attributes[key]
             compute_method = getattr(self, compute_method_name)
             value = compute_method()
-            # Cache the result
+            # Cache the result, and return just the key, not the dict
             if isinstance(value, dict):
                 self.update(value)
+                return super().__getitem__(key), key
             else:
                 self[key] = value
-            return value, key
+                return value, key
         
         raise KeyError(key)
     
