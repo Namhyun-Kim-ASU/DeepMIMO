@@ -317,6 +317,9 @@ TIERS = {
     2: ['map.osm_paths_footway',],
 }
 
+# Reject all roads because of sionna 1.1 material bug
+# REJECTED_ROAD_KEYWORDS += TIERS[1] + TIERS[2]
+
 def create_ground_plane(min_lat: float, max_lat: float, 
                         min_lon: float, max_lon: float) -> bpy.types.Object:
     """Create and size a ground plane with FLOOR_MATERIAL."""

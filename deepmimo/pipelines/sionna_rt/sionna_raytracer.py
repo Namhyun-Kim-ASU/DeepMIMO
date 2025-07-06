@@ -23,6 +23,7 @@ from tqdm import tqdm
 # Local imports
 from .sionna_utils import create_base_scene, set_materials, is_sionna_v1, get_sionna_version
 from ...exporters.sionna_exporter import sionna_exporter
+from ...exporters.sionna_exporter import export_paths
 
 # Version check constant
 IS_LEGACY_VERSION = not is_sionna_v1()
@@ -104,7 +105,7 @@ def _compute_paths(scene: sionna.rt.Scene, p_solver: Optional[PathSolver], compu
 
     # Export paths to CPU if requested
     if cpu_offload and not IS_LEGACY_VERSION:
-        paths = sionna_exporter.export_paths(paths)[0]
+        paths = export_paths(paths)[0]
     
     return paths
 
@@ -229,5 +230,5 @@ def raytrace_sionna(base_folder: str, tx_pos: np.ndarray, rx_pos: np.ndarray, **
     # Save Sionna outputs
     print("Saving Sionna outputs")
 
-    sionna_exporter.export_to_deepmimo(scene, path_list, rt_params, scene_folder)
+    sionna_exporter(scene, path_list, rt_params, scene_folder)
     return scene_folder

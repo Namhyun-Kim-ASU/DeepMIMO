@@ -156,6 +156,7 @@ p = {
 	'rx_vel': None,  # [n_ue, 3] [m/s] # (x, y, z)
 	'tx_ori': None,  # [n_bs, 3] [rad]  # (azimuth, elevation, roll)
 	'tx_vel': None,  # [n_bs, 3] [m/s] # (x, y, z)
+	'obj_idx': None,  # [n_obj] [int]  # (x, y, z)
 	'obj_pos': None,  # [n_obj, 3] [m]  # (x, y, z)
 	'obj_ori': None,  # [n_obj, 3] [rad] # (azimuth, elevation, roll)
 	'obj_vel': None,  # [n_obj, 3] [m/s] # (x, y, z)
