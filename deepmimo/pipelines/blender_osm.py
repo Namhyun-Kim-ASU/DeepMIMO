@@ -79,7 +79,7 @@ def fetch_osm_scene(minlat: float, minlon: float, maxlat: float, maxlon: float,
 	setup_world_lighting()
 
 	BUILDING_MATERIAL = 'itu_concrete'
-	ROAD_MATERIAL = 'itu_brick'  # TODO: CHECK if Manually changed to asphalt in Sionna
+	ROAD_MATERIAL = 'itu_brick'
 
 	# Create materials (for lighting/coloring and downstream processing)
 	building_material = bpy.data.materials.new(name=BUILDING_MATERIAL)

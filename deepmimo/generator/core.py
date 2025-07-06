@@ -70,7 +70,7 @@ def load(scen_name: str, **load_params) -> Dataset | MacroDataset:
         **load_params: Additional parameters for loading the scenario. Can be passed as a dictionary
             or as keyword arguments. Available parameters are:
 
-            * max_paths (int, optional): Maximum number of paths to load. Defaults to 5.
+            * max_paths (int, optional): Maximum number of paths to load. Defaults to 10.
 
             * tx_sets (dict or list or str, optional): Transmitter sets to load. 
                 Defaults to 'all'. Can be:

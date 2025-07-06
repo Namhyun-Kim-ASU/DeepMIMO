@@ -3,7 +3,7 @@ Parameters for the pipeline.
 
 Steps to run a pipeline:
 
-1. pip install deepmimo
+1. pip install --pre deepmimo
 
 2. Install dependencies
 	- install miniforge (https://github.com/conda-forge/miniforge)
@@ -134,7 +134,8 @@ p = {
 	'batch_size': 15,  # Number of users to compute at a time
 					   # Heuristic: 1.5 per GB of GPU VRAM, if using scattering, 
 					   # else 5-10 users per GB
-	'use_builtin_scene': True,  # Whether to use a builtin scene (True) or a custom scene (False)
+	'use_builtin_scene': False,  # Whether to use a builtin scene (True) or a custom scene (False)
+                                 # NOTE: when fetching OSM data, set this to False
 	'builtin_scene_path': 'simple_street_canyon', # 'simple_reflector', 'simple_street_canyon'
 	'path_inspection_func': None,  # Function to inspect the paths after computation 
 	                               # (before filtering or saving)
