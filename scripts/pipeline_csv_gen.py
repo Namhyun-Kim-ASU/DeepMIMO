@@ -52,7 +52,7 @@ if __name__ == "__main__":
     random.seed(42)
     
     # Load city coordinates
-    cities = pd.read_csv("./dev/worldcities.csv") 
+    cities = pd.read_csv("./scripts/worldcities_t.csv") 
     urban_cities = cities[cities['population'] > MIN_CITY_POPULATION]
 
     # Generate bounding boxes
@@ -103,13 +103,14 @@ if __name__ == "__main__":
         
         # Be kind to the OSM server
         time.sleep(1)
+        break # do only for one city for now
     
     print(f"Generated {len(bounding_boxes)} valid boxes, skipped {skipped} boxes with no buildings")
 
     # Save to CSV
     df = pd.DataFrame(bounding_boxes)
     print("DataFrame columns:", df.columns)  # Debug print
-    df.to_csv("./dev/bounding_boxes.csv", index=False)
+    df.to_csv("./scripts/bounding_boxes.csv", index=False)
     print(f"Saved {len(bounding_boxes)} valid bounding boxes to bounding_boxes.csv")
     
     # Plot one scenario
