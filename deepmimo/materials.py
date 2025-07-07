@@ -122,10 +122,11 @@ class MaterialList:
         """Get string representation of the material list.
         
         Returns:
-            String containing list of materials
+            String containing number of materials and their names
         """
-        return str(self._materials)
-        
+        names = [mat.name for mat in self._materials]
+        return f"MaterialList({len(self._materials)} materials, names={names})"
+
     def add_materials(self, materials: List[Material]) -> None:
         """Add materials to the collection.
         
