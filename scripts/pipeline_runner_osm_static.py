@@ -48,6 +48,7 @@ from scripts.pipeline_params import p
 # OSM_ROOT = "/home/jamorais/osm_root" # Windows
 # OSM_ROOT = OSM_ROOT.replace('C:', '/mnt/c') # WSL
 OSM_ROOT = os.path.join(os.getcwd(), "osm_root")
+os.makedirs(OSM_ROOT, exist_ok=True)
 
 # df = pd.read_csv('./scripts/bounding_boxes.csv')
 df = pd.read_csv('./dev/params_20cities_t.csv')
