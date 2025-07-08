@@ -135,12 +135,14 @@ Future work will create specific tests in /tests, mainly for CI/CD purposes.
 
 ## Documentation
 
-Build documentation locally:
+Build documentation:
 
-```bash
-cd docs
-make html
-```
+| Step    | Command                                           | Description                       |
+|---------|---------------------------------------------------|-----------------------------------|
+| Install | `pip install .[doc]`                             | Install docs dependencies         |
+| Build   | `cd docs`<br>`sphinx-build -b html . _build/html` | Generate HTML documentation       |
+| Serve   | `cd docs/_build/html`<br>`python -m http.server`  | View docs at http://localhost:8000|
+
 
 ## Pull Request Process
 
