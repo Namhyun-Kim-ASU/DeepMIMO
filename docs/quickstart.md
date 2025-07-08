@@ -78,33 +78,33 @@ This will print 3 tables, the fundamental matrices, the computed attributes, and
 
 ### Fundamental Matrices
 
-| Matrix | Description | Shape |
-|--------|-------------|-------|
-| power | Tap power. Received power in dBW for each path, assuming 0 dBW transmitted power. 10*log10(\|a\|²), where a is the complex channel amplitude | [num_rx, num_paths] |
-| phase | Tap phase. Phase of received signal for each path in degrees. ∠a (angle of a), where a is the complex channel amplitude | [num_rx, num_paths] |
-| delay | Tap delay. Propagation delay for each path in seconds | [num_rx, num_paths] |
-| aoa_az | Angle of arrival (azimuth) for each path in degrees | [num_rx, num_paths] |
-| aoa_el | Angle of arrival (elevation) for each path in degrees | [num_rx, num_paths] |
-| aod_az | Angle of departure (azimuth) for each path in degrees | [num_rx, num_paths] |
-| aod_el | Angle of departure (elevation) for each path in degrees | [num_rx, num_paths] |
-| inter | Type of interactions along each path. Codes: 0: LOS, 1: Reflection, 2: Diffraction, 3: Scattering, 4: Transmission. Code meaning: 121 -> Tx-R-D-R-Rx | [num_rx, num_paths] |
-| inter_pos | 3D coordinates in meters of each interaction point along paths | [num_rx, num_paths, max_interactions, 3] |
-| rx_pos | Receiver positions in 3D coordinates in meters | [num_rx, 3] |
-| tx_pos | Transmitter positions in 3D coordinates in meters | [num_tx, 3] |
+| Matrix | Shape | Description |
+|--------|-------|-------------|
+| power | [num_rx, num_paths] | Tap power. Received power in dBW for each path, assuming 0 dBW transmitted power. 10*log10(\|a\|²), where a is the complex channel amplitude |
+| phase | [num_rx, num_paths] | Tap phase. Phase of received signal for each path in degrees. ∠a (angle of a), where a is the complex channel amplitude |
+| delay | [num_rx, num_paths] | Tap delay. Propagation delay for each path in seconds |
+| aoa_az | [num_rx, num_paths] | Angle of arrival (azimuth) for each path in degrees |
+| aoa_el | [num_rx, num_paths] | Angle of arrival (elevation) for each path in degrees |
+| aod_az | [num_rx, num_paths] | Angle of departure (azimuth) for each path in degrees |
+| aod_el | [num_rx, num_paths] | Angle of departure (elevation) for each path in degrees |
+| inter | [num_rx, num_paths] | Type of interactions along each path. Codes: 0: LOS, 1: Reflection, 2: Diffraction, 3: Scattering, 4: Transmission. Code meaning: 121 -> Tx-R-D-R-Rx |
+| inter_pos | [num_rx, num_paths, max_interactions, 3] | 3D coordinates in meters of each interaction point along paths |
+| rx_pos | [num_rx, 3] | Receiver positions in 3D coordinates in meters |
+| tx_pos | [num_tx, 3] | Transmitter positions in 3D coordinates in meters |
 
 ### Computed/Derived Matrices
 
-| Matrix | Description | Shape |
-|--------|-------------|-------|
-| los | Line of sight status for each path. 1: Direct path between TX and RX. 0: Indirect path. -1: No paths between TX and RX. | [num_rx, ] |
-| channel | Channel matrix between TX and RX antennas. X = number of paths (time domain) or subcarriers (frequency domain) | [num_rx, num_rx_ant, num_tx_ant, X] |
-| power_linear | Linear power for each path (W) | [num_rx, num_paths] |
-| pathloss | Pathloss for each path (dB) | [num_rx, num_paths] |
-| distance | Distance between TX and RX for each path (m) | [num_rx, num_paths] |
-| num_paths | Number of paths for each user | [num_rx] |
-| inter_str | Interaction string for each path. Codes: 0:"", 1:"R", 2:"D", 3:"S", 4:"T". Example: 121 -> "RDR" | [num_rx, num_paths] |
-| doppler | Doppler frequency shifts [Hz] for each user and path | [num_rx, num_paths] |
-| inter_obj | Object ids at each interaction point | [num_rx, num_paths, max_interactions] |
+| Matrix | Shape | Description |
+|--------|-------|-------------|
+| los | [num_rx, ] | Line of sight status for each path. 1: Direct path between TX and RX. 0: Indirect path. -1: No paths between TX and RX. |
+| channel | [num_rx, num_rx_ant, num_tx_ant, X] | Channel matrix between TX and RX antennas. X = number of paths (time domain) or subcarriers (frequency domain) |
+| power_linear | [num_rx, num_paths] | Linear power for each path (W) |
+| pathloss | [num_rx, num_paths] | Pathloss for each path (dB) |
+| distance | [num_rx, num_paths] | Distance between TX and RX for each path (m) |
+| num_paths | [num_rx] | Number of paths for each user |
+| inter_str | [num_rx, num_paths] | Interaction string for each path. Codes: 0:"", 1:"R", 2:"D", 3:"S", 4:"T". Example: 121 -> "RDR" |
+| doppler | [num_rx, num_paths] | Doppler frequency shifts [Hz] for each user and path |
+| inter_obj | [num_rx, num_paths, max_interactions] | Object ids at each interaction point |
 
 ### Additional Dataset Fields
 
