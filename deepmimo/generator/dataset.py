@@ -992,7 +992,7 @@ class Dataset(DotDict):
                 aux_dataset[array_name] = np.take_along_axis(aux_dataset[array_name], new_order, axis=1)
         
         # Compress arrays to remove unused paths
-        data_dict = {k: v for k, v in aux_dataset.items() if isinstance(v, np.ndarray)}
+        data_dict = {k: v for k, v in aux_dataset.items() if isinstance(v, np.ndarray) and k in path_arrays}
         compressed_data = cu.compress_path_data(data_dict)
         
         # Update dataset with compressed arrays
