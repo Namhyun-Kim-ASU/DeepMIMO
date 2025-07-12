@@ -33,6 +33,7 @@ logging_*.txt
 aodt_scripts/*
 RT_SOURCES/*
 visibility/*
+path_trim_plots/*
 
 # Others
 building_*

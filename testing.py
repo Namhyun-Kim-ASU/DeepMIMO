@@ -62,8 +62,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 save_plots = True
-save_dir = 'plots'
-
+save_dir = 'path_trim_plots'
 
 dataset = dm.load('asu_campus_3p5')
 
@@ -166,12 +165,16 @@ for combo_idx, (path_types, max_depth) in enumerate(path_combinations):
     trimmed_dataset.power.plot(**plt_args)
     
     if save_plots:
-        exp_str = f'{combo_idx:03d}_{"-".join(path_types)}_{max_depth}'
+        path_type_str = '-'.join(path_types) if path_types else 'all-types'
+        depth_str = str(max_depth) if max_depth is not None else 'all-depths'
+        exp_str = f'{combo_idx:03d}_{path_type_str}_{depth_str}'
         save_path = f'{save_dir}/pwr_exp_{exp_str}.png'
         os.makedirs(save_dir, exist_ok=True)
         plt.savefig(save_path)
 
     plt.show()
-    break
+    # break
 
     # FUTURE: Compute channels & save matrix for topological analysis
+
+    # FUN FACT: trimming by depth is much faster than trimming by type.
