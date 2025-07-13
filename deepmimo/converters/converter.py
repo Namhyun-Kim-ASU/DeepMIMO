@@ -92,7 +92,8 @@ def convert(path_to_rt_folder: str, **conversion_params: Dict[str, Any]) -> Opti
         conversion_params['num_scenes'] = len(subdirs)
         
         # Convert each subdirectory to a time snapshot
-        for subdir in subdirs:
+        for scen_idx, subdir in enumerate(subdirs):
+            print(f'-- Converting scene {scen_idx+1} of {len(subdirs)} --')
             _ = rt_converter(subdir, **conversion_params)
     
     if rt_converter is None:
