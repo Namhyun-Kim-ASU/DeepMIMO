@@ -2,7 +2,7 @@
 DeepMIMO Python Package.
 """
 
-__version__ = "4.0.0b8"
+__version__ = "4.0.0b11"
 
 # Core functionality
 from .generator.core import (
