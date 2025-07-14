@@ -293,14 +293,14 @@ dataset_dyn_rt = dm.load(dyn_name, tx_sets=[1], rx_sets=[2]) # car-BS
 #%% Plot Coverage for Dynamic Scene
 
 plt.rcdefaults()
-# plt.rcParams['font.size'] = 14
-# plt.rcParams['xtick.color'] = 'white'
-# plt.rcParams['ytick.color'] = 'white'
-# plt.rcParams['axes.labelcolor'] = 'white'
+plt.rcParams['font.size'] = 14
+plt.rcParams['xtick.color'] = 'white'
+plt.rcParams['ytick.color'] = 'white'
+plt.rcParams['axes.labelcolor'] = 'white'
 
 pwr_lims = (-146, -60)  # min first, max second
 
-save = False
+save = True
 folder = f"dm_scene_doppler_dynamic_car_rxgrid_2D_5R1D"
 os.makedirs(folder, exist_ok=True)
 
@@ -314,8 +314,9 @@ for i in range(n_scenes):
                              bs_pos=dataset_dyn[i].tx_pos[0], 
                              **plot_args)
     dataset_dyn_rt[i].plot_rays(0, ax=ax, proj_3D=False,
-                                color_strat='absolute', 
-                                limits=pwr_lims, show_cbar=False)
+                                # color_strat='relative', limits=pwr_lims, 
+                                color_strat='absolute', limits=pwr_lims, 
+                                show_cbar=False)
     
     ax.legend().set_visible(False)
     ax.grid(False)
@@ -327,6 +328,6 @@ for i in range(n_scenes):
     else:
         plt.show()
     
-    break
+    # break
 
 

@@ -371,7 +371,7 @@ def plot_rays(rx_loc: np.ndarray, tx_loc: np.ndarray, inter_pos: np.ndarray,
             raise ValueError("Powers must be provided when color_rays_by_pwr is True")
         
         # Create colormap for power-based coloring
-        cmap = plt.get_cmap('viridis')
+        cmap = plt.get_cmap('jet')
         
         # Normalize powers for coloring
         if limits is not None:
@@ -415,10 +415,13 @@ def plot_rays(rx_loc: np.ndarray, tx_loc: np.ndarray, inter_pos: np.ndarray,
             ray_color = cmap(norm(powers[path_idx]))
         else:
             ray_color = 'g' if is_los else 'r'
-        ray_plt_args = dict(color=ray_color, alpha=1 if is_los else 0.5, zorder=1)
+        ray_plt_args = dict(color=ray_color, 
+                            alpha=1 if is_los else 0.5, 
+                            zorder=2 if is_los else 1,
+                            linewidth=2 if is_los else 1)
             
         if is_los:
-            plot_line(path_points[0], path_points[1], **ray_plt_args, linewidth=2,
+            plot_line(path_points[0], path_points[1], **ray_plt_args,
                       label='LoS' if not color_rays_by_pwr else None)
             continue
         
