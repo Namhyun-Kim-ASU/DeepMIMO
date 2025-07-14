@@ -825,7 +825,6 @@ class Dataset(DotDict):
         
         return grid_points == self.n_ue
 
-
     def get_active_idxs(self) -> np.ndarray:
         """Return indices of active users.
         
@@ -1107,10 +1106,15 @@ class Dataset(DotDict):
         """
         return plot_coverage(self.rx_pos, cov_map, bs_pos=self.tx_pos.T, bs_ori=self.tx_ori, **kwargs)
     
-    def plot_rays(self, idx: int, **kwargs):
+    def plot_rays(self, idx: int, color_strat: str = 'none', **kwargs):
         """Plot the rays of the dataset.
         
         Args:
+            idx: Index of the user to plot rays for
+            color_strat: Strategy for coloring rays by power. Can be:
+                - 'none': Don't color by power (default)
+                - 'relative': Color by power relative to min/max of this user's paths
+                - 'absolute': Color by power using absolute limits from all users
             **kwargs: Additional keyword arguments to pass to the plot_rays function.
         """
         if kwargs.get('color_by_inter_obj', False):
@@ -1127,6 +1131,18 @@ class Dataset(DotDict):
             'inter_objects': inter_objs,
             'inter_obj_labels': inter_obj_labels,
         }
+        
+        # Handle power-based coloring
+        if color_strat != 'none':
+            default_kwargs['color_rays_by_pwr'] = True
+            default_kwargs['powers'] = self.power[idx]
+            
+            if color_strat == 'absolute':
+                default_kwargs['limits'] = (np.nanmin(self.power), np.nanmax(self.power))
+            
+            if 'show_cbar' not in kwargs.keys():
+                kwargs['show_cbar'] = True
+
         default_kwargs.update(kwargs)
         return plot_rays(self.rx_pos[idx], self.tx_pos[0], self.inter_pos[idx],
                          self.inter[idx], **default_kwargs)
