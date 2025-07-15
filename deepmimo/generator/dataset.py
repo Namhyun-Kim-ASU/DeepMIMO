@@ -415,16 +415,155 @@ class Dataset(DotDict):
         elevation_deg = elevation * 180.0 / np.pi
 
         # Update the basestation antenna rotation parameters
-        # Note: Currently only azimuth is supported in DeepMIMO
-        # TODO: Add elevation support when DeepMIMO implements it
+        # DeepMIMO supports rotation with elevation: [azimuth, elevation, polarization]
         if hasattr(self, 'ch_params') and self.ch_params is not None:
-            self.ch_params.bs_antenna[c.PARAMSET_ANT_ROTATION] = azimuth_deg
+            # Get current rotation to preserve polarization angle
+            current_rotation = self.ch_params.bs_antenna[c.PARAMSET_ANT_ROTATION]
+            if isinstance(current_rotation, (int, float)):
+                # If single value, assume it's azimuth with 0 elevation and polarization
+                polarization = 0
+            elif len(current_rotation) >= 3:
+                # Preserve existing polarization angle
+                polarization = current_rotation[2]
+            else:
+                # Default polarization
+                polarization = 0
+            
+            # Set rotation as [azimuth, elevation, polarization]
+            self.ch_params.bs_antenna[c.PARAMSET_ANT_ROTATION] = np.array([azimuth_deg, elevation_deg, polarization])
+            
             # Clear cached rotated angles since rotation has changed
             self._clear_cache_rotated_angles()
+            
+            print(f"Set BS antenna rotation: azimuth={azimuth_deg:.2f}°, elevation={elevation_deg:.2f}°, polarization={polarization:.2f}°")
         else:
             # If no channel parameters exist yet, store for later use
             print("Warning: No channel parameters found. Call set_channel_params() first.")
             print(f"Calculated azimuth: {azimuth_deg:.2f}°, elevation: {elevation_deg:.2f}°")
+
+    def ue_look_at(self, look_pos: np.ndarray | list | tuple) -> None:
+        """Set the orientation of user equipment antennas to look at given position(s) in 3D.
+        
+        Similar to bs_look_at() function, this method automatically calculates and sets 
+        the UE antenna rotation parameters so that user equipment point toward the 
+        specified target position(s).
+        
+        Args:
+            look_pos: The position(s) to look at in meters.
+                     Can be:
+                     - 1D array/list/tuple (x, y, z): All UEs look at the same position
+                     - 2D array with shape (3,) or (2,): Same as 1D case
+                     - 2D array with shape (n_users, 3): Each UE looks at different position
+                     - 2D array with shape (n_users, 2): Each UE looks at different position (z=0)
+                     If 2D coordinates are provided, z=0 is assumed.
+        
+        Example:
+            >>> # All UEs look at the base station
+            >>> dataset.ue_look_at(dataset.tx_pos)
+            >>> 
+            >>> # All UEs look at a specific coordinate
+            >>> dataset.ue_look_at([100, 200, 10])
+            >>> 
+            >>> # Each UE looks at different positions (must match number of UEs)
+            >>> look_positions = np.array([[100, 200, 10], [150, 250, 15], ...])
+            >>> dataset.ue_look_at(look_positions)
+        """
+        # Convert look_pos to numpy array
+        look_pos = np.array(look_pos)
+        
+        # Get user positions
+        if not hasattr(self, 'rx_pos') or self.rx_pos is None:
+            print("Warning: No user positions found. Generate channels first.")
+            return
+        
+        rx_positions = np.array(self.rx_pos)
+        n_users = len(rx_positions)
+        
+        # Handle different input formats
+        if look_pos.ndim == 1:
+            # 1D array: same target for all UEs
+            if len(look_pos) == 2:
+                look_pos = np.append(look_pos, 0)  # Add z=0
+            target_positions = np.tile(look_pos, (n_users, 1))
+        elif look_pos.ndim == 2:
+            if look_pos.shape[0] == 1 or (look_pos.shape == (3,) or look_pos.shape == (2,)):
+                # Single position for all UEs
+                if look_pos.shape[-1] == 2:
+                    if look_pos.ndim == 1:
+                        look_pos = np.append(look_pos, 0)
+                    else:
+                        look_pos = np.column_stack([look_pos, np.zeros(look_pos.shape[0])])
+                target_positions = np.tile(look_pos.reshape(1, -1), (n_users, 1))
+            else:
+                # Different position for each UE
+                if look_pos.shape[0] != n_users:
+                    raise ValueError(f"Number of target positions ({look_pos.shape[0]}) must match number of users ({n_users})")
+                if look_pos.shape[1] == 2:
+                    look_pos = np.column_stack([look_pos, np.zeros(look_pos.shape[0])])
+                target_positions = look_pos
+        else:
+            raise ValueError("look_pos must be 1D or 2D array")
+        
+        # Ensure user positions are 3D
+        if rx_positions.shape[1] == 2:
+            rx_positions = np.column_stack([rx_positions, np.zeros(n_users)])
+        
+        # Calculate rotation parameters for each UE
+        azimuth_degrees = np.zeros(n_users)
+        elevation_degrees = np.zeros(n_users)
+        
+        for i in range(n_users):
+            # Calculate direction vector from UE to target
+            dx = target_positions[i, 0] - rx_positions[i, 0]
+            dy = target_positions[i, 1] - rx_positions[i, 1] 
+            dz = target_positions[i, 2] - rx_positions[i, 2]
+            
+            # Calculate azimuth (horizontal angle)
+            azimuth = np.arctan2(dy, dx)
+            
+            # Calculate elevation (vertical angle)
+            distance = np.sqrt(dx**2 + dy**2)
+            elevation = np.arctan2(dz, distance)
+            
+            # Convert from radians to degrees for DeepMIMO convention
+            azimuth_degrees[i] = azimuth * 180.0 / np.pi
+            elevation_degrees[i] = elevation * 180.0 / np.pi
+        
+        # Update the UE antenna rotation parameters
+        if hasattr(self, 'ch_params') and self.ch_params is not None:
+            # Calculate mean values since DeepMIMO applies single rotation to all UEs
+            # (Individual UE rotations are not directly supported - only uniform or random ranges)
+            mean_azimuth = np.mean(azimuth_degrees)
+            mean_elevation = np.mean(elevation_degrees)
+            
+            # Get current rotation to preserve polarization angle
+            current_rotation = self.ch_params.ue_antenna[c.PARAMSET_ANT_ROTATION]
+            if isinstance(current_rotation, (int, float)):
+                # If single value, assume it's azimuth with 0 elevation and polarization
+                polarization = 0
+            elif len(current_rotation) >= 3:
+                # Preserve existing polarization angle
+                polarization = current_rotation[2]
+            else:
+                # Default polarization
+                polarization = 0
+            
+            # Set rotation as [azimuth, elevation, polarization] for UE antennas
+            self.ch_params.ue_antenna[c.PARAMSET_ANT_ROTATION] = np.array([mean_azimuth, mean_elevation, polarization])
+            
+            # Clear cached rotated angles since rotation has changed
+            self._clear_cache_rotated_angles()
+            
+            print(f"Set UE antenna rotation: azimuth={mean_azimuth:.2f}°, elevation={mean_elevation:.2f}°, polarization={polarization:.2f}°")
+            if n_users > 1 and (np.std(azimuth_degrees) > 1 or np.std(elevation_degrees) > 1):
+                print(f"Warning: Individual UE rotations vary significantly (using mean values).")
+                print(f"Azimuth range: {np.min(azimuth_degrees):.2f}° to {np.max(azimuth_degrees):.2f}°")
+                print(f"Elevation range: {np.min(elevation_degrees):.2f}° to {np.max(elevation_degrees):.2f}°")
+                print(f"Note: DeepMIMO applies uniform rotation to all UEs. For individual rotations, consider using rotation ranges.")
+        else:
+            # If no channel parameters exist yet, store for later use
+            print("Warning: No channel parameters found. Call set_channel_params() first.")
+            print(f"Calculated mean azimuth: {np.mean(azimuth_degrees):.2f}°, mean elevation: {np.mean(elevation_degrees):.2f}°")
 
     def _compute_rotated_angles(self, tx_ant_params: Optional[Dict[str, Any]] = None, 
                                 rx_ant_params: Optional[Dict[str, Any]] = None) -> Dict[str, np.ndarray]:
