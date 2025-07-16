@@ -371,52 +371,26 @@ class Dataset(DotDict):
         """
         return self.rx_ori
 
-    def _look_at(self, from_pos: np.ndarray | list | tuple, to_pos: np.ndarray | list | tuple) -> tuple[float, float]:
-        """Internal helper function to calculate azimuth and elevation angles between two 3D positions.
+    def _look_at(self, from_positions: np.ndarray, to_positions: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """Internal helper function to calculate azimuth and elevation angles for position pairs.
         
         Args:
-            from_pos: Starting position (x, y, z) in meters
-            to_pos: Target position (x, y, z) in meters
-            
-        Returns:
-            Tuple of (azimuth_deg, elevation_deg) in degrees
-        """
-        # Ensure both positions are 3D numpy arrays
-        from_pos = np.array(from_pos)
-        to_pos = np.array(to_pos)
-        
-        # Handle 2D coordinates by adding z=0
-        if from_pos.shape[0] == 2:
-            from_pos = np.append(from_pos, 0)
-        if to_pos.shape[0] == 2:
-            to_pos = np.append(to_pos, 0)
-
-        # Calculate direction vector
-        dx, dy, dz = to_pos[0] - from_pos[0], to_pos[1] - from_pos[1], to_pos[2] - from_pos[2]
-        
-        # Calculate azimuth (horizontal angle)
-        azimuth = np.arctan2(dy, dx)
-        
-        # Calculate elevation (vertical angle) 
-        distance = np.sqrt(dx**2 + dy**2)
-        elevation = np.arctan2(dz, distance)
-
-        # Convert from radians to degrees for DeepMIMO convention
-        azimuth_deg = azimuth * 180.0 / np.pi
-        elevation_deg = elevation * 180.0 / np.pi
-        
-        return azimuth_deg, elevation_deg
-
-    def _look_at_batch(self, from_positions: np.ndarray, to_positions: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        """Helper function to calculate azimuth and elevation angles for multiple position pairs.
-        
-        Args:
-            from_positions: Array of starting positions with shape (n, 3) in meters
-            to_positions: Array of target positions with shape (n, 3) in meters
+            from_positions: Array of starting positions with shape (n, 2-3) in meters
+            to_positions: Array of target positions with shape (n, 2-3) in meters
             
         Returns:
             Tuple of (azimuth_degrees, elevation_degrees) arrays with shape (n,)
         """
+        # Ensure positions are arrays and handle 2D coordinates
+        from_positions = np.atleast_2d(from_positions)
+        to_positions = np.atleast_2d(to_positions)
+        
+        # Add z=0 if only 2D coordinates
+        if from_positions.shape[1] == 2:
+            from_positions = np.column_stack([from_positions, np.zeros(from_positions.shape[0])])
+        if to_positions.shape[1] == 2:
+            to_positions = np.column_stack([to_positions, np.zeros(to_positions.shape[0])])
+        
         # Calculate direction vectors for all pairs at once
         direction_vectors = to_positions - from_positions
         dx, dy, dz = direction_vectors[:, 0], direction_vectors[:, 1], direction_vectors[:, 2]
@@ -455,10 +429,12 @@ class Dataset(DotDict):
         """
         # Use helper function to calculate angles
         azimuth_deg, elevation_deg = self._look_at(self.tx_pos, look_pos)
+        azimuth_deg, elevation_deg = azimuth_deg[0], elevation_deg[0]
 
         # Update the basestation antenna rotation parameters (preserve existing z_rot)
         current_rotation = np.array(self.ch_params.bs_antenna[c.PARAMSET_ANT_ROTATION])
-        self.ch_params.bs_antenna[c.PARAMSET_ANT_ROTATION] = np.array([azimuth_deg, elevation_deg, current_rotation[2] if len(current_rotation) > 2 else 0])
+        z_rot = current_rotation.flat[2] if current_rotation.size > 2 else 0
+        self.ch_params.bs_antenna[c.PARAMSET_ANT_ROTATION] = np.array([azimuth_deg, elevation_deg, z_rot])
         
         # Clear cached rotated angles since rotation has changed
         self._clear_cache_rotated_angles()
@@ -531,11 +507,12 @@ class Dataset(DotDict):
             rx_positions = np.column_stack([rx_positions, np.zeros(n_users)])
         
         # Calculate rotation parameters for all UEs at once
-        azimuth_degrees, elevation_degrees = self._look_at_batch(rx_positions, target_positions)
+        azimuth_degrees, elevation_degrees = self._look_at(rx_positions, target_positions)
         
         # Update the UE antenna rotation parameters (preserve existing z_rot)
-        current_rotation = np.array(self.ch_params.ue_antenna[c.PARAMSET_ANT_ROTATION])
-        self.ch_params.ue_antenna[c.PARAMSET_ANT_ROTATION] = np.column_stack([azimuth_degrees, elevation_degrees, current_rotation[:, 2] if current_rotation.ndim == 2 and current_rotation.shape[1] > 2 and current_rotation.shape[0] == n_users else np.zeros(n_users)])
+        current_rotation = np.atleast_2d(self.ch_params.ue_antenna[c.PARAMSET_ANT_ROTATION])
+        z_rot_values = current_rotation[:, 2] if current_rotation.shape == (n_users, 3) else np.zeros(n_users)
+        self.ch_params.ue_antenna[c.PARAMSET_ANT_ROTATION] = np.column_stack([azimuth_degrees, elevation_degrees, z_rot_values])
         
         # Clear cached rotated angles since rotation has changed
         self._clear_cache_rotated_angles()
