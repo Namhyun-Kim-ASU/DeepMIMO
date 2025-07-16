@@ -457,27 +457,12 @@ class Dataset(DotDict):
         # Use helper function to calculate angles
         azimuth_deg, elevation_deg = self._look_at(self.tx_pos, look_pos)
 
-        # Update the basestation antenna rotation parameters
-        # DeepMIMO supports rotation with elevation: [azimuth, elevation, polarization]
-        # Get current rotation to preserve polarization angle
-        current_rotation = self.ch_params.bs_antenna[c.PARAMSET_ANT_ROTATION]
-        if isinstance(current_rotation, (int, float)):
-            # If single value, assume it's azimuth with 0 elevation and polarization
-            polarization = 0
-        elif len(current_rotation) >= 3:
-            # Preserve existing polarization angle
-            polarization = current_rotation[2]
-        else:
-            # Default polarization
-            polarization = 0
-        
-        # Set rotation as [azimuth, elevation, polarization]
-        self.ch_params.bs_antenna[c.PARAMSET_ANT_ROTATION] = np.array([azimuth_deg, elevation_deg, polarization])
+        # Update the basestation antenna rotation parameters (preserve existing z_rot)
+        current_rotation = np.array(self.ch_params.bs_antenna[c.PARAMSET_ANT_ROTATION])
+        self.ch_params.bs_antenna[c.PARAMSET_ANT_ROTATION] = np.array([azimuth_deg, elevation_deg, current_rotation[2] if len(current_rotation) > 2 else 0])
         
         # Clear cached rotated angles since rotation has changed
         self._clear_cache_rotated_angles()
-        
-        print(f"Set BS antenna rotation: azimuth={azimuth_deg:.2f}°, elevation={elevation_deg:.2f}°, polarization={polarization:.2f}°")
 
     def ue_look_at(self, look_pos: np.ndarray | list | tuple) -> None:
         """Set the orientation of user equipment antennas to look at given position(s) in 3D.
@@ -511,7 +496,7 @@ class Dataset(DotDict):
         
         # Get user positions
         if not hasattr(self, 'rx_pos') or self.rx_pos is None:
-            print("Warning: No user positions found. Generate channels first.")
+            print("Warning: No user positions found. Ensure positions are loaded and available in dataset.rx_pos.")
             return
         
         rx_positions = np.array(self.rx_pos)
@@ -549,39 +534,12 @@ class Dataset(DotDict):
         # Calculate rotation parameters for all UEs at once
         azimuth_degrees, elevation_degrees = self._look_at_batch(rx_positions, target_positions)
         
-        # Update the UE antenna rotation parameters
-        # Get current rotation to preserve polarization angle for all UEs
-        current_rotation = self.ch_params.ue_antenna[c.PARAMSET_ANT_ROTATION]
-        if isinstance(current_rotation, (int, float)):
-            # If single value, use default polarization for all UEs
-            polarization_values = np.zeros(n_users)
-        elif isinstance(current_rotation, np.ndarray):
-            if current_rotation.ndim == 1 and len(current_rotation) >= 3:
-                # Single rotation with polarization - apply same polarization to all UEs
-                polarization_values = np.full(n_users, current_rotation[2])
-            elif current_rotation.ndim == 2 and current_rotation.shape[1] >= 3:
-                # Individual rotations with polarization - preserve existing polarization values
-                polarization_values = current_rotation[:, 2] if current_rotation.shape[0] == n_users else np.zeros(n_users)
-            else:
-                # Default polarization for all UEs
-                polarization_values = np.zeros(n_users)
-        else:
-            # Default polarization for all UEs
-            polarization_values = np.zeros(n_users)
-        
-        # Create 2D array of individual rotations [n_users, 3] for [azimuth, elevation, polarization]
-        individual_rotations = np.column_stack([azimuth_degrees, elevation_degrees, polarization_values])
-        
-        # Set individual rotation for each UE antenna
-        self.ch_params.ue_antenna[c.PARAMSET_ANT_ROTATION] = individual_rotations
+        # Update the UE antenna rotation parameters (preserve existing z_rot)
+        current_rotation = np.array(self.ch_params.ue_antenna[c.PARAMSET_ANT_ROTATION])
+        self.ch_params.ue_antenna[c.PARAMSET_ANT_ROTATION] = np.column_stack([azimuth_degrees, elevation_degrees, current_rotation[:, 2] if current_rotation.ndim == 2 and current_rotation.shape[1] > 2 and current_rotation.shape[0] == n_users else np.zeros(n_users)])
         
         # Clear cached rotated angles since rotation has changed
         self._clear_cache_rotated_angles()
-        
-        print(f"Set individual UE antenna rotations for {n_users} users:")
-        print(f"  Azimuth range: {np.min(azimuth_degrees):.2f}° to {np.max(azimuth_degrees):.2f}°")
-        print(f"  Elevation range: {np.min(elevation_degrees):.2f}° to {np.max(elevation_degrees):.2f}°")
-        print(f"  Polarization: {polarization_values[0]:.2f}° (all UEs)" if np.all(polarization_values == polarization_values[0]) else f"  Polarization: varies per UE")
 
     def _compute_rotated_angles(self, tx_ant_params: Optional[Dict[str, Any]] = None, 
                                 rx_ant_params: Optional[Dict[str, Any]] = None) -> Dict[str, np.ndarray]:
