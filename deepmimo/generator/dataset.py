@@ -371,28 +371,28 @@ class Dataset(DotDict):
         """
         return self.rx_ori
 
-    def _look_at(self, from_positions: np.ndarray, to_positions: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def _look_at(self, from_pos: np.ndarray, to_pos: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Internal helper function to calculate azimuth and elevation angles for position pairs.
         
         Args:
-            from_positions: Array of starting positions with shape (n, 2-3) in meters
-            to_positions: Array of target positions with shape (n, 2-3) in meters
+            from_pos: Array of starting positions with shape (n, 2-3) in meters
+            to_pos: Array of target positions with shape (n, 2-3) in meters
             
         Returns:
             Tuple of (azimuth_degrees, elevation_degrees) arrays with shape (n,)
         """
         # Ensure positions are arrays and handle 2D coordinates
-        from_positions = np.atleast_2d(from_positions)
-        to_positions = np.atleast_2d(to_positions)
+        from_pos = np.atleast_2d(from_pos)
+        to_pos = np.atleast_2d(to_pos)
         
         # Add z=0 if only 2D coordinates
-        if from_positions.shape[1] == 2:
-            from_positions = np.column_stack([from_positions, np.zeros(from_positions.shape[0])])
-        if to_positions.shape[1] == 2:
-            to_positions = np.column_stack([to_positions, np.zeros(to_positions.shape[0])])
+        if from_pos.shape[1] == 2:
+            from_pos = np.column_stack([from_pos, np.zeros(from_pos.shape[0])])
+        if to_pos.shape[1] == 2:
+            to_pos = np.column_stack([to_pos, np.zeros(to_pos.shape[0])])
         
         # Calculate direction vectors for all pairs at once
-        direction_vectors = to_positions - from_positions
+        direction_vectors = to_pos - from_pos
         dx, dy, dz = direction_vectors[:, 0], direction_vectors[:, 1], direction_vectors[:, 2]
         
         # Calculate azimuth (horizontal angle) for all pairs
@@ -408,7 +408,7 @@ class Dataset(DotDict):
         
         return azimuth_deg, elevation_deg
 
-    def bs_look_at(self, look_pos: np.ndarray | list | tuple = (0, 0, 0)) -> None:
+    def bs_look_at(self, look_pos: np.ndarray | list | tuple) -> None:
         """Set the orientation of the basestation to look at a given position in 3D.
 
         Similar to Sionna RT's Camera.look_at() function, this method automatically
@@ -474,44 +474,28 @@ class Dataset(DotDict):
             print("Warning: No user positions found. Ensure positions are loaded and available in dataset.rx_pos.")
             return
         
-        rx_positions = np.array(self.rx_pos)
-        n_users = len(rx_positions)
-        
         # Handle different input formats
         if look_pos.ndim == 1:
             # 1D array: same target for all UEs
-            if len(look_pos) == 2:
-                look_pos = np.append(look_pos, 0)  # Add z=0
-            target_positions = np.tile(look_pos, (n_users, 1))
+            target_positions = np.tile(look_pos, (self.n_ue, 1))
         elif look_pos.ndim == 2:
-            if look_pos.shape[0] == 1 or (look_pos.shape == (3,) or look_pos.shape == (2,)):
+            if look_pos.shape[0] == 1:
                 # Single position for all UEs
-                if look_pos.shape[-1] == 2:
-                    if look_pos.ndim == 1:
-                        look_pos = np.append(look_pos, 0)
-                    else:
-                        look_pos = np.column_stack([look_pos, np.zeros(look_pos.shape[0])])
-                target_positions = np.tile(look_pos.reshape(1, -1), (n_users, 1))
+                target_positions = np.tile(look_pos, (self.n_ue, 1))
             else:
                 # Different position for each UE
-                if look_pos.shape[0] != n_users:
-                    raise ValueError(f"Number of target positions ({look_pos.shape[0]}) must match number of users ({n_users})")
-                if look_pos.shape[1] == 2:
-                    look_pos = np.column_stack([look_pos, np.zeros(look_pos.shape[0])])
+                if look_pos.shape[0] != self.n_ue:
+                    raise ValueError(f"Number of target positions ({look_pos.shape[0]}) must match number of users ({self.n_ue})")
                 target_positions = look_pos
         else:
             raise ValueError("look_pos must be 1D or 2D array")
         
-        # Ensure user positions are 3D
-        if rx_positions.shape[1] == 2:
-            rx_positions = np.column_stack([rx_positions, np.zeros(n_users)])
-        
         # Calculate rotation parameters for all UEs at once
-        azimuth_degrees, elevation_degrees = self._look_at(rx_positions, target_positions)
+        azimuth_degrees, elevation_degrees = self._look_at(self.rx_pos, target_positions)
         
         # Update the UE antenna rotation parameters (preserve existing z_rot)
         current_rotation = np.atleast_2d(self.ch_params.ue_antenna[c.PARAMSET_ANT_ROTATION])
-        z_rot_values = current_rotation[:, 2] if current_rotation.shape == (n_users, 3) else np.zeros(n_users)
+        z_rot_values = current_rotation[:, 2] if current_rotation.shape == (self.n_ue, 3) else np.zeros(self.n_ue)
         self.ch_params.ue_antenna[c.PARAMSET_ANT_ROTATION] = np.column_stack([azimuth_degrees, elevation_degrees, z_rot_values])
         
         # Clear cached rotated angles since rotation has changed
