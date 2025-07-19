@@ -48,10 +48,12 @@ from scripts.pipeline_params import p
 # OSM_ROOT = "/home/jamorais/osm_root" # Windows
 # OSM_ROOT = OSM_ROOT.replace('C:', '/mnt/c') # WSL
 OSM_ROOT = os.path.join(os.getcwd(), "osm_root")
+os.makedirs(OSM_ROOT, exist_ok=True)
 
+# df = pd.read_csv('./scripts/bounding_boxes.csv')
 df = pd.read_csv('./dev/params_20cities_t.csv')
 
-counter = 0 # to run the same pipeline multiple times
+counter = 12 # to run the same pipeline multiple times
 
 #%% Run pipeline
 
@@ -65,7 +67,7 @@ for index, row in df.iterrows():
 	counter += 1
 	osm_folder = os.path.join(OSM_ROOT, row['name']) + f'_{counter}'
 	fetch_osm_scene(p['min_lat'], p['min_lon'], p['max_lat'], p['max_lon'],
-					osm_folder, output_formats=['insite','sionna'])
+					osm_folder, output_formats=['insite', 'sionna'])
 	p['origin_lat'], p['origin_lon'] = get_origin_coords(osm_folder)
 
 	p['city'] = get_city_name(p['origin_lat'], p['origin_lon'], GMAPS_API_KEY)
@@ -80,23 +82,25 @@ for index, row in df.iterrows():
 	rx_pos = np.round(rx_pos, p['pos_prec'])
 	tx_pos = np.round(tx_pos, p['pos_prec'])
 	
-	print('Starting RT')
-	osm_folder = os.path.join(OSM_ROOT, "simple_reflector")
-
 	# RT Phase 4: Run Wireless InSite ray tracing
+	print('Starting RT')
 	# rt_path = raytrace_insite(osm_folder, tx_pos, rx_pos, **p)
 	rt_path = raytrace_sionna(osm_folder, tx_pos, rx_pos, **p)
 
+	# NOTE: with sionna 1.0, the roads are not exported correctly
+	# Uncomment the following line in deepmimo/pipelines/utils/blender_utils.py
+	# Reject all roads because of sionna 1.1 material bug
+	# REJECTED_ROAD_KEYWORDS += TIERS[1] + TIERS[2]
+	
 	# RT Phase 5: Convert to DeepMIMO format
-	scen_name = dm.convert(rt_path, overwrite=True)
+	scen_name = dm.convert(rt_path, scenario_name=row['name'], overwrite=True)
 
 	# RT Phase 6: Test Conversion
 	dataset = dm.load(scen_name)
-	dataset.plot_coverage(dataset.los, scat_sz=40)
-	dataset.plot_coverage(dataset.pwr[:, 0], scat_sz=40)
+	dataset.plot_coverage(dataset.los)
+	dataset.plot_coverage(dataset.pwr[:, 0])
 
 	# RT Phase 7: Upload (zip rt source)
-	scen_name = dm.zip(rt_path)
 	dm.upload(scen_name, key=DEEPMIMO_API_KEY)
 	dm.upload_images(scen_name, img_paths=[sat_view_path],  key=DEEPMIMO_API_KEY)
 	dm.upload_rt_source(scen_name, rt_zip_path=dm.zip(rt_path), key=DEEPMIMO_API_KEY)

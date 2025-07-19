@@ -2,7 +2,7 @@
 
 This document details the key conventions used in DeepMIMO.
 
-## Cartisian Coordinate System
+## Cartesian Coordinate System
 
 The coordinate system follows:
 
@@ -15,7 +15,7 @@ The coordinate system follows:
 
 ## Angle Conventions 
 
-Angles follow the spherical system conventions, see ![Spherical Coordinate System](https://en.wikipedia.org/wiki/Spherical_coordinate_system). 
+Angles follow the spherical system conventions, see [Spherical Coordinate System](https://en.wikipedia.org/wiki/Spherical_coordinate_system). 
 
 Additionally, all angles are in degrees (not radians)
 

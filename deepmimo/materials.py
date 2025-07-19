@@ -122,9 +122,36 @@ class MaterialList:
         """Get string representation of the material list.
         
         Returns:
-            String containing list of materials
+            String containing number of materials and their names
         """
-        return str(self._materials)
+        return f"MaterialList({len(self._materials)} materials, names={self.name})"
+
+    def __getattr__(self, name: str):
+        """Propagate attribute access to the underlying materials list.
+        
+        This allows accessing attributes of the underlying materials directly.
+        For example, if each material has a 'permittivity' attribute, you can access
+        all permittivities as: material_list.permittivity
+        
+        Args:
+            name: Name of the attribute to access
+            
+        Returns:
+            List of attribute values from all materials
+            
+        Raises:
+            AttributeError: If the attribute doesn't exist in the Material class
+        """
+        # Check if any materials exist
+        if not self._materials:
+            raise AttributeError(f"Empty MaterialList has no attribute '{name}'")
+            
+        # Check if the first material has this attribute
+        if not hasattr(self._materials[0], name):
+            raise AttributeError(f"Material objects have no attribute '{name}'")
+            
+        # Return list of attribute values from all materials
+        return [getattr(mat, name) for mat in self._materials]
         
     def add_materials(self, materials: List[Material]) -> None:
         """Add materials to the collection.

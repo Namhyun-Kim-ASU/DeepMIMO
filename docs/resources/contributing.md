@@ -4,23 +4,22 @@ Thank you for your interest in contributing to DeepMIMO! This guide will help yo
 
 ## Development Setup
 
-1. Fork and clone the repository:
+1. Fork and clone your forked the repository:
    ```bash
    git clone https://github.com/YOUR_USERNAME/DeepMIMO.git
    cd DeepMIMO
    ```
 
-2. Create a virtual environment:
+2. Create a virtual environment (we recommend [miniforge](https://github.com/conda-forge/miniforge)):
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # Linux/Mac
-   # or
-   .\venv\Scripts\activate  # Windows
+   mamba create -n dm_env python=3.11
+   mamba activate dm_env
    ```
 
 3. Install development dependencies:
    ```bash
-   pip install -e ".[dev]"
+   pip install uv
+   uv pip install -e ".[dev]"
    ```
 
 ## Code Style
@@ -28,7 +27,6 @@ Thank you for your interest in contributing to DeepMIMO! This guide will help yo
 We follow PEP 8 with some modifications:
 - Line length: 100 characters
 - Use Google-style docstrings
-- Sort imports using `isort`
 
 ## Versioning
 <global_format_rules>.<converter_version>.<generator_version>
@@ -132,20 +130,19 @@ class MainClass:
 
 ## Testing
 
-Run tests using pytest:
-
-```bash
-pytest tests/
-```
+Currently tests are executed using the DeepMIMO manual. 
+Future work will create specific tests in /tests, mainly for CI/CD purposes.
 
 ## Documentation
 
-Build documentation locally:
+Build documentation:
 
-```bash
-cd docs
-make html
-```
+| Step    | Command                                           | Description                       |
+|---------|---------------------------------------------------|-----------------------------------|
+| Install | `pip install .[doc]`                             | Install docs dependencies         |
+| Build   | `cd docs`<br>`sphinx-build -b html . _build/html` | Generate HTML documentation       |
+| Serve   | `cd docs/_build/html`<br>`python -m http.server`  | View docs at http://localhost:8000|
+
 
 ## Pull Request Process
 

@@ -20,7 +20,7 @@ dataset = dm.load('asu_campus_3p5')[0]
 dm.plot_coverage(dataset.rx_pos, dataset.los)
 
 # Customize visualization
-fig, ax, cbar = dm.plot_coverage(
+ax, cbar = dm.plot_coverage(
     rxs,                   # User positions (N×3)
     cov_map,               # Coverage values
     dpi=100,               # Plot resolution

@@ -73,40 +73,38 @@ pip install -e .
 ```python
 import deepmimo as dm
 
-# Print summary of available datasets
-dm.summary('asu_campus_3p5')
+# Load a dataset
+dataset = dm.load('asu_campus_3p5')
 
-# Generate a dataset
-dataset = dm.generate('asu_campus_3p5')
-
-# Access channel parameters
-channel = dataset.channel
+# Generate channel
+channel = dataset.compute_channels()
 ```
 
-### Converting Ray Tracer Outputs
+### Convert Ray Tracing Simulations to DeepMIMO
 ```python
 import deepmimo as dm
 
-# Convert Wireless Insite output
+# Convert Wireless Insite, Sionna, or AODT to DeepMIMO
 converter = dm.convert('path_to_ray_tracing_output')
 ```
 
-### Uploading and Downloading Datasets
+### Download and Upload Datasets
 ```python
 import deepmimo as dm
 
-# Upload a dataset to the DeepMIMO server
-dm.upload('my_scenario', 'your-api-key')
-
 # Download a dataset
 dm.download('asu_campus_3p5')
+
+# Upload a dataset to the DeepMIMO (after local conversion)
+dm.upload('my_scenario', 'your-api-key')
+# get key in "contribute" in deepmimo.net
 ```
 
 ## Building Documentation
 
 | Step    | Command                                           | Description                       |
 |---------|---------------------------------------------------|-----------------------------------|
-| Install | `pip install .[docs]`                             | Install docs dependencies         |
+| Install | `pip install .[doc]`                              | Install docs dependencies         |
 | Build   | `cd docs`<br>`sphinx-build -b html . _build/html` | Generate HTML documentation       |
 | Serve   | `cd docs/_build/html`<br>`python -m http.server`  | View docs at http://localhost:8000|
 

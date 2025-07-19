@@ -142,7 +142,8 @@ def install_blender_addon(addon_name: str) -> None:
             LOGGER.info("✅ Mitsuba import successful")
         except ImportError:
             LOGGER.info("📦 Mitsuba not found, installing mitsuba package")
-            install_python_package('mitsuba==3.5.0')
+            install_python_package('mitsuba==3.5.0') # sionna 0.19
+            # install_python_package('mitsuba==3.6.2') # sionna 1.0
             LOGGER.warning("🔄 Packages installed! Restarting Blender to update imports")
             bpy.ops.wm.quit_blender()
 
@@ -315,6 +316,9 @@ TIERS = {
         'map.osm_roads_secondary', 'map.osm_roads_unclassified', 'map.osm_roads_service'],
     2: ['map.osm_paths_footway',],
 }
+
+# Reject all roads because of sionna 1.1 material bug
+# REJECTED_ROAD_KEYWORDS += TIERS[1] + TIERS[2]
 
 def create_ground_plane(min_lat: float, max_lat: float, 
                         min_lon: float, max_lon: float) -> bpy.types.Object:

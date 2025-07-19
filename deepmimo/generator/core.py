@@ -21,7 +21,7 @@ import numpy as np
 # Local imports
 from .. import consts as c
 from ..general_utils import (get_mat_filename, load_dict_from_json, 
-                             get_scenario_folder, get_params_path, load_mat)
+                             get_scenario_folder, get_params_path, load_mat, DotDict)
 from ..scene import Scene
 from .dataset import Dataset, MacroDataset, DynamicDataset
 from ..materials import MaterialList
@@ -69,7 +69,7 @@ def load(scen_name: str, **load_params) -> Dataset | MacroDataset:
         **load_params: Additional parameters for loading the scenario. Can be passed as a dictionary
             or as keyword arguments. Available parameters are:
 
-            * max_paths (int, optional): Maximum number of paths to load. Defaults to 5.
+            * max_paths (int, optional): Maximum number of paths to load. Defaults to 10.
 
             * tx_sets (dict or list or str, optional): Transmitter sets to load. 
                 Defaults to 'all'. Can be:
@@ -144,9 +144,7 @@ def _load_dataset(folder: str, params: dict, load_params: dict) -> Dataset | Mac
     
     # Set shared parameters
     dataset[c.NAME_PARAM_NAME] = os.path.basename(folder)
-    # dataset[c.NAME_PARAM_NAME] = scen_name
 
-    dataset[c.LOAD_PARAMS_PARAM_NAME] = load_params
     dataset[c.RT_PARAMS_PARAM_NAME] = params[c.RT_PARAMS_PARAM_NAME]
     dataset[c.SCENE_PARAM_NAME] = Scene.from_data(folder)
     dataset[c.MATERIALS_PARAM_NAME] = MaterialList.from_dict(params[c.MATERIALS_PARAM_NAME])
@@ -198,6 +196,13 @@ def _load_raytracing_scene(scene_folder: str, txrx_dict: dict, max_paths: int = 
         final_dataset = MacroDataset([Dataset(d_dict) for d_dict in dataset_list])
     else:
         final_dataset = Dataset(dataset_list[0])
+    
+    final_dataset[c.LOAD_PARAMS_PARAM_NAME] = DotDict({
+        'max_paths': max_paths,
+        'tx_sets': tx_sets,
+        'rx_sets': rx_sets,
+        'matrices': matrices,
+    })
     return final_dataset
 
 

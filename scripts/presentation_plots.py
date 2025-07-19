@@ -191,16 +191,8 @@ for i, usr_idx in enumerate(seq_idxs[::4]):
     print(f"Saved {i} of {len(seq_idxs[::4])}")
     # break
 
-# [DONE] 1- Modify Floor
-# [DONE] 2- Trim Buildings
-# [SKIP] 3- Add the car object
-#   - Add object based on its vertices (e.g. car)
-#   - Attribute category label: objects
-# [DONE] 4- Overlay coverage map
-####
 
 #%% With Static terrain
-
 
 plt.rcdefaults()
 plt.rcParams['xtick.color'] = 'white'
@@ -270,7 +262,7 @@ import subprocess
 subprocess.run([
     "ffmpeg",
     "-y", # overwrite if file exists
-    "-framerate", "15",
+    "-framerate", "10",
     "-i", f"{folder}/%d.png",
     "-filter_complex",
     "[0]format=rgba[fg];color=black:s=3000x2400:d=5[bg];[bg][fg]overlay=format=auto",
@@ -279,8 +271,63 @@ subprocess.run([
     f"{folder}/output.mp4"
 ])
 
+# FUTURE: Read the first image size and configure the command (in 3000x2400)
+
 # Clean up PNG files
 # for file in os.listdir(folder):
 #     if file.endswith('.png'):
 #         os.remove(os.path.join(folder, file))
+
+#%% Repeat for Dynamic Scene
+
+if False:
+    dyn_name = dm.convert('RT_SOURCES/asu_campus_3p5_dyn_rd', 
+                          overwrite=True, vis_scene=False, print_params=False)
+else:
+    dyn_name = 'asu_campus_3p5_dyn_rd'
+
+# Load Dataset for moving car and for static BS
+dataset_dyn = dm.load(dyn_name, tx_sets=[1], rx_sets=[0]) # car-rxgrid
+dataset_dyn_rt = dm.load(dyn_name, tx_sets=[1], rx_sets=[2]) # car-BS
+
+#%% Plot Coverage for Dynamic Scene
+
+plt.rcdefaults()
+plt.rcParams['font.size'] = 14
+plt.rcParams['xtick.color'] = 'white'
+plt.rcParams['ytick.color'] = 'white'
+plt.rcParams['axes.labelcolor'] = 'white'
+
+pwr_lims = (-146, -60)  # min first, max second
+
+save = True
+folder = f"dm_scene_doppler_dynamic_car_rxgrid_2D_5R1D"
+os.makedirs(folder, exist_ok=True)
+
+n_scenes = len(dataset_dyn)
+for i in range(n_scenes):
+    
+    plot_args = dict(scat_sz=2.2, dpi=300, figsize=(10,8), lims=pwr_lims, 
+                     cbar_title='Power (dBm)')
+    ax, _ = dm.plot_coverage(dataset_dyn[i].rx_pos, 
+                             dataset_dyn[i].power[:,0], 
+                             bs_pos=dataset_dyn[i].tx_pos[0], 
+                             **plot_args)
+    dataset_dyn_rt[i].plot_rays(0, ax=ax, proj_3D=False,
+                                # color_strat='relative', limits=pwr_lims, 
+                                color_strat='absolute', limits=pwr_lims, 
+                                show_cbar=False)
+    
+    ax.legend().set_visible(False)
+    ax.grid(False)
+    
+    if save:
+        plt.savefig(f"{folder}/{i}.png", transparent=True)
+        plt.close()
+        print(f"Saved {i} of {n_scenes}")
+    else:
+        plt.show()
+    
+    # break
+
 
