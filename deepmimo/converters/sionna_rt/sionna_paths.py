@@ -9,8 +9,8 @@ import numpy as np
 from tqdm import tqdm
 from typing import Dict
 from ... import consts as c
-from ..converter_utils import save_mat, compress_path_data
-from ...general_utils import load_pickle
+from ..converter_utils import compress_path_data
+from ...general_utils import load_pickle, get_mat_filename, save_mat
 
 # Interaction Type Map for Sionna
 INTERACTIONS_MAP = {
@@ -386,7 +386,8 @@ def read_paths(load_folder: str, save_folder: str, txrx_dict: Dict, sionna_versi
         
         # Save each data key
         for key in data.keys():
-            save_mat(data[key], key, save_folder, 0, tx_idx, 1)  # Static for Sionna
+            mat_file = get_mat_filename(key, 0, tx_idx, 1)
+            save_mat(data[key], key, os.path.join(save_folder, mat_file))
         
         if bs_bs_paths:
             print(f'BS-BS paths found for TX {tx_idx}')

@@ -6,7 +6,7 @@ including electromagnetic and scattering characteristics.
 """
 
 from dataclasses import dataclass, asdict, astuple
-from typing import Dict, ClassVar, List, Set
+from typing import Dict, List, Set
 
 @dataclass
 class Material:

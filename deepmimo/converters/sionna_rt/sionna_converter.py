@@ -76,7 +76,7 @@ def sionna_rt_converter(rt_folder: str, copy_source: bool = False,
     read_paths(rt_folder, temp_folder, txrx_dict, rt_params['raytracer_version'])
 
     # Read Materials (.materials)
-    materials_dict, material_indices = read_materials(rt_folder, temp_folder)
+    materials_dict, material_indices = read_materials(rt_folder)
 
     # Read Scene data
     scene = read_scene(rt_folder, material_indices)
