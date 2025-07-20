@@ -486,7 +486,8 @@ class Dataset(DotDict):
             else:
                 # Different position for each UE
                 if look_pos.shape[0] != self.n_ue:
-                    raise ValueError(f"Number of target positions ({look_pos.shape[0]}) must match number of users ({self.n_ue})")
+                    raise ValueError(f"Number of target positions ({look_pos.shape[0]}) "
+                                     f"must match number of users ({self.n_ue})")
                 target_positions = look_pos
         else:
             raise ValueError("look_pos must be 1D or 2D array")
