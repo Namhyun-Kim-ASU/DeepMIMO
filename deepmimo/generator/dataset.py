@@ -494,9 +494,10 @@ class Dataset(DotDict):
         azimuth_degrees, elevation_degrees = self._look_at(self.rx_pos, target_positions)
         
         # Update the UE antenna rotation parameters (preserve existing z_rot)
-        current_rotation = np.atleast_2d(self.ch_params.ue_antenna[c.PARAMSET_ANT_ROTATION])
-        z_rot_values = current_rotation[:, 2] if current_rotation.shape == (self.n_ue, 3) else np.zeros(self.n_ue)
-        self.ch_params.ue_antenna[c.PARAMSET_ANT_ROTATION] = np.column_stack([azimuth_degrees, elevation_degrees, z_rot_values])
+        curr_rot = np.atleast_2d(self.ch_params.ue_antenna[c.PARAMSET_ANT_ROTATION])
+        z_rot_values = curr_rot[:, 2] if curr_rot.shape == (self.n_ue, 3) else np.zeros(self.n_ue)
+        self.ch_params.ue_antenna[c.PARAMSET_ANT_ROTATION] = \
+            np.column_stack([azimuth_degrees, elevation_degrees, z_rot_values])
         
         # Clear cached rotated angles since rotation has changed
         self._clear_cache_rotated_angles()
