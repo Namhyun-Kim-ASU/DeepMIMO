@@ -472,7 +472,8 @@ class Dataset(DotDict):
         
         # Get user positions
         if not hasattr(self, 'rx_pos') or self.rx_pos is None:
-            print("Warning: No user positions found. Ensure positions are loaded and available in dataset.rx_pos.")
+            print("Warning: No user positions found. "
+                  "Ensure positions are loaded and available in dataset.rx_pos.")
             return
         
         # Handle different input formats
