@@ -111,78 +111,120 @@ def _process_paths_batch(paths_dict: Dict, data: Dict, b: int, t: int,
     else:
         rx_ant_range = range(a.shape[1])
         tx_ant_range = range(a.shape[3])
-        raise NotImplementedError('Multi antenna support is not implemented yet.')
+        # Multi-antenna support implementation
+        tx_idx = t
+#        # Multi-antenna system detected (message removed for cleaner output)
     
     n_rx = targets.shape[0]
 
-    for rel_rx_idx in range(n_rx):
+    # Determine antenna combinations to process
+    if theta_r.ndim == 3:
+        # Single antenna case
+        antenna_combinations = [(0, 0)]  # (rx_ant_idx, tx_ant_idx)
+    else:
+        # Multi-antenna case: process all antenna combinations
+        # After batch dimension removal: [num_rx, num_rx_ant, num_tx, num_tx_ant, max_num_paths]
+        num_rx_ant = a.shape[1]  # RX antennas are in axis 1
+        num_tx_ant = a.shape[3]  # TX antennas are in axis 3
+        antenna_combinations = [(rx_ant, tx_ant) for rx_ant in range(num_rx_ant) for tx_ant in range(num_tx_ant)]
 
-        abs_idx_arr = np.where(np.all(rx_pos == targets[rel_rx_idx], axis=1))[0]
-        if len(abs_idx_arr) == 0:
-            # RX position not found in global RX list, skip
-            continue
-        abs_idx = abs_idx_arr[0]
+    # Process each antenna combination
+    for ant_combo_idx, (rx_ant_idx, tx_ant_idx) in enumerate(antenna_combinations):
+        for rel_rx_idx in range(n_rx):
 
-        amp = a[rel_rx_idx, rx_ant_idx, tx_idx, tx_ant_idx, :]
-        non_zero_path_idxs = np.where(amp != 0)[0][:c.MAX_PATHS]
-        n_paths = len(non_zero_path_idxs)
-        if n_paths == 0:
-            inactive_count += 1
-            continue
-        # Ensure that the paths are sorted by amplitude
-        sorted_path_idxs = np.argsort(np.abs(amp))[::-1]
-        path_idxs = sorted_path_idxs[:n_paths]
-        
-        data[c.POWER_PARAM_NAME][abs_idx, :n_paths] = 20 * np.log10(np.abs(amp[path_idxs]))
-        data[c.PHASE_PARAM_NAME][abs_idx, :n_paths] = np.angle(amp[path_idxs], deg=True)
-        
-        data[c.AOA_AZ_PARAM_NAME][abs_idx, :n_paths] = np.rad2deg(phi_r[rel_rx_idx, tx_idx, path_idxs])
-        data[c.AOD_AZ_PARAM_NAME][abs_idx, :n_paths] = np.rad2deg(phi_t[rel_rx_idx, tx_idx, path_idxs])
-        data[c.AOA_EL_PARAM_NAME][abs_idx, :n_paths] = np.rad2deg(theta_r[rel_rx_idx, tx_idx, path_idxs])
-        data[c.AOD_EL_PARAM_NAME][abs_idx, :n_paths] = np.rad2deg(theta_t[rel_rx_idx, tx_idx, path_idxs])
-        
-        data[c.DELAY_PARAM_NAME][abs_idx, :n_paths] = tau[rel_rx_idx, tx_idx, path_idxs]
+            abs_idx_arr = np.where(np.all(rx_pos == targets[rel_rx_idx], axis=1))[0]
+            if len(abs_idx_arr) == 0:
+                # RX position not found in global RX list, skip
+                continue
+            abs_idx = abs_idx_arr[0]
 
-        # Interaction positions and types
-        inter_pos_rx = vertices[:, rel_rx_idx, tx_idx, path_idxs, :].swapaxes(0,1)
-        n_interactions = inter_pos_rx.shape[1]
-        inter_pos_rx[inter_pos_rx == 0] = np.nan
-        # NOTE: this is a workaround to handle no interaction positions
-        data[c.INTERACTIONS_POS_PARAM_NAME][abs_idx, :n_paths, :n_interactions, :] = inter_pos_rx
-        if sionna_v1:
-            # For Sionna v1, types is (max_depth, n_rx, n_tx, max_paths)
-            # We need to get (n_paths, max_depth) for the current rx/tx pair
-            path_types = types[:, rel_rx_idx, tx_idx, path_idxs].swapaxes(0,1)
-            inter_types = _transform_interaction_types(path_types)
-        else:
-            inter_types = _get_sionna_interaction_types(types[path_idxs], inter_pos_rx)
-        
-        data[c.INTERACTIONS_PARAM_NAME][abs_idx, :n_paths] = inter_types
-        
+            # Use appropriate indexing based on antenna configuration
+            if theta_r.ndim == 3:
+                # Single antenna case: [rel_rx_idx, tx_idx, :]
+                amp = a[rel_rx_idx, tx_idx, :]
+            else:
+                # Multi-antenna case: [rel_rx_idx, rx_ant_idx, tx_idx, tx_ant_idx, :]
+                amp = a[rel_rx_idx, rx_ant_idx, tx_idx, tx_ant_idx, :]
+            non_zero_path_idxs = np.where(amp != 0)[0][:c.MAX_PATHS]
+            n_paths = len(non_zero_path_idxs)
+            if n_paths == 0:
+                inactive_count += 1
+                continue
+            # Ensure that the paths are sorted by amplitude
+            sorted_path_idxs = np.argsort(np.abs(amp))[::-1]
+            path_idxs = sorted_path_idxs[:n_paths]
+            
+            data[c.POWER_PARAM_NAME][abs_idx, :n_paths] = 20 * np.log10(np.abs(amp[path_idxs]))
+            data[c.PHASE_PARAM_NAME][abs_idx, :n_paths] = np.angle(amp[path_idxs], deg=True)
+            
+            # Use appropriate indexing for angle and delay data
+            if theta_r.ndim == 3:
+                # Single antenna case: [rel_rx_idx, tx_idx, path_idxs]
+                data[c.AOA_AZ_PARAM_NAME][abs_idx, :n_paths] = np.rad2deg(phi_r[rel_rx_idx, tx_idx, path_idxs])
+                data[c.AOD_AZ_PARAM_NAME][abs_idx, :n_paths] = np.rad2deg(phi_t[rel_rx_idx, tx_idx, path_idxs])
+                data[c.AOA_EL_PARAM_NAME][abs_idx, :n_paths] = np.rad2deg(theta_r[rel_rx_idx, tx_idx, path_idxs])
+                data[c.AOD_EL_PARAM_NAME][abs_idx, :n_paths] = np.rad2deg(theta_t[rel_rx_idx, tx_idx, path_idxs])
+                data[c.DELAY_PARAM_NAME][abs_idx, :n_paths] = tau[rel_rx_idx, tx_idx, path_idxs]
+            else:
+                # Multi-antenna case: [rel_rx_idx, rx_ant_idx, tx_idx, tx_ant_idx, path_idxs]
+                data[c.AOA_AZ_PARAM_NAME][abs_idx, :n_paths] = np.rad2deg(phi_r[rel_rx_idx, rx_ant_idx, tx_idx, tx_ant_idx, path_idxs])
+                data[c.AOD_AZ_PARAM_NAME][abs_idx, :n_paths] = np.rad2deg(phi_t[rel_rx_idx, rx_ant_idx, tx_idx, tx_ant_idx, path_idxs])
+                data[c.AOA_EL_PARAM_NAME][abs_idx, :n_paths] = np.rad2deg(theta_r[rel_rx_idx, rx_ant_idx, tx_idx, tx_ant_idx, path_idxs])
+                data[c.AOD_EL_PARAM_NAME][abs_idx, :n_paths] = np.rad2deg(theta_t[rel_rx_idx, rx_ant_idx, tx_idx, tx_ant_idx, path_idxs])
+                data[c.DELAY_PARAM_NAME][abs_idx, :n_paths] = tau[rel_rx_idx, rx_ant_idx, tx_idx, tx_ant_idx, path_idxs]
+
+            # Interaction positions and types
+            # Use appropriate indexing for vertices
+            if theta_r.ndim == 3:
+                # Single antenna case: [max_depth, rel_rx_idx, tx_idx, path_idxs, 3]
+                inter_pos_rx = vertices[:, rel_rx_idx, tx_idx, path_idxs, :].swapaxes(0,1)
+            else:
+                # Multi-antenna case: [max_depth, rel_rx_idx, rx_ant_idx, tx_idx, tx_ant_idx, path_idxs, 3]
+                inter_pos_rx = vertices[:, rel_rx_idx, rx_ant_idx, tx_idx, tx_ant_idx, path_idxs, :].swapaxes(0,1)
+            n_interactions = inter_pos_rx.shape[1]
+            inter_pos_rx[inter_pos_rx == 0] = np.nan
+            # NOTE: this is a workaround to handle no interaction positions
+            data[c.INTERACTIONS_POS_PARAM_NAME][abs_idx, :n_paths, :n_interactions, :] = inter_pos_rx
+            if sionna_v1:
+                # For Sionna v1, types is (max_depth, n_rx, n_tx, max_paths)
+                # We need to get (n_paths, max_depth) for the current rx/tx pair
+                # Use appropriate indexing for types
+                if theta_r.ndim == 3:
+                    # Single antenna case: [max_depth, rel_rx_idx, tx_idx, path_idxs]
+                    path_types = types[:, rel_rx_idx, tx_idx, path_idxs].swapaxes(0,1)
+                else:
+                    # Multi-antenna case: [max_depth, rel_rx_idx, rx_ant_idx, tx_idx, tx_ant_idx, path_idxs]
+                    path_types = types[:, rel_rx_idx, rx_ant_idx, tx_idx, tx_ant_idx, path_idxs].swapaxes(0,1)
+                inter_types = _transform_interaction_types(path_types)
+            else:
+                inter_types = _get_sionna_interaction_types(types[path_idxs], inter_pos_rx)
+            
+            data[c.INTERACTIONS_PARAM_NAME][abs_idx, :n_paths] = inter_types
+            
     return inactive_count
 
 def _get_path_key(paths_dict, key, fallback_key=None, default=None):
     if key in paths_dict:
-        return paths_dict[key]
+            return paths_dict[key]
     elif fallback_key and fallback_key in paths_dict:
-        return paths_dict[fallback_key]
+            return paths_dict[fallback_key]
     elif default is not None:
-        return default
+            return default
     else:
-        raise KeyError(f"Neither '{key}' nor '{fallback_key}' found in paths_dict.")
+            raise KeyError(f"Neither '{key}' nor '{fallback_key}' found in paths_dict.")
 
 def _transform_interaction_types(types: np.ndarray) -> np.ndarray:
     """Transform a (n_paths, max_depth) interaction types array into a (n_paths,) array
     where each element is an integer formed by concatenating the interaction type digits.
     
     Args:
-        types: Array of shape (n_paths, max_depth) containing interaction types:
-              0 for LoS, 1 for Reflection, 2 for Diffraction, 3 for Scattering
-              
+            types: Array of shape (n_paths, max_depth) containing interaction types:
+                  0 for LoS, 1 for Reflection, 2 for Diffraction, 3 for Scattering
+                  
     Returns:
-        np.ndarray: Array of shape (n_paths,) where each element is an integer
-                   representing the concatenated interaction types.
-                   
+            np.ndarray: Array of shape (n_paths,) where each element is an integer
+                       representing the concatenated interaction types.
+                       
     Example:
         [[0, 0, 0],      ->  [0,      # LoS
          [1, 1, 0],           11,     # Two reflections

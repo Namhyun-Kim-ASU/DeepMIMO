@@ -168,9 +168,21 @@ def load_mat(mat_path: str, key: Optional[str] = None):
     mat_filename = os.path.basename(mat_path)
 
     if not os.path.exists(mat_path):
-        print(f'File {mat_path} could not be found')
-        return None
+        # Try alternative formats
+        if mat_path.endswith(".mat"):
+            npz_path = mat_path.replace(".mat", ".npz")
+            if os.path.exists(npz_path):
+                print(f"File {mat_path} not found, using {npz_path} instead")
+                mat_path = npz_path
+            else:
+                print(f"File {mat_path} could not be found")
+                return None
+        else:
+            print(f"File {mat_path} could not be found")
+            return None
     
+    # Update filename after potential path change
+    mat_filename = os.path.basename(mat_path)
     if mat_filename.endswith('.mat'):
         val = scipy.io.loadmat(mat_path)[key]
     elif mat_filename.endswith('.npz'):

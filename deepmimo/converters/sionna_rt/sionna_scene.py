@@ -36,10 +36,16 @@ def read_scene(load_folder: str, material_indices: List[int]) -> Scene:
         Scene: Loaded scene with all objects
     """
     # Load raw data - already in correct format
+    print(f"[DEBUG] read_scene: Loading from {load_folder}")
+    print(f"[DEBUG] Material indices count: {len(material_indices)}")
     vertices = load_pickle(os.path.join(load_folder, 'sionna_vertices.pkl')) # (N_VERTICES, 3) 
     objects = load_pickle(os.path.join(load_folder, 'sionna_objects.pkl')) # Dict with vertex index ranges
     
     # Create scene
+    print("[DEBUG] Loaded vertices: shape=", vertices.shape if hasattr(vertices, "shape") else "no shape")
+    print("[DEBUG] Loaded objects: count=", len(objects) if hasattr(objects, "__len__") else "unknown")
+    if hasattr(objects, "keys"):
+        print(f"[DEBUG] Object names: {list(objects.keys())}")
     scene = Scene()
 
     terrain_keywords = ['plane', 'floor', 'terrain', 'roads', 'paths']
@@ -94,4 +100,7 @@ def read_scene(load_folder: str, material_indices: List[int]) -> Scene:
             print(f"Error processing object {name}: {str(e)}")
             raise
 
+    print(f"[DEBUG] Scene creation completed: {len(scene.objects)} objects created")
+    for i, obj in enumerate(scene.objects):
+        print(f"[DEBUG] Object {i}: {obj.name} with {len(obj.faces)} faces")
     return scene 
