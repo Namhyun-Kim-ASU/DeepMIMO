@@ -165,21 +165,32 @@ def save_mat(data: np.ndarray, data_key: str, file_path: str, fmt: str = c.MAT_F
                         'Choose "mat" (default), "npz" or "npy".')
     
 def load_mat(mat_path: str, key: Optional[str] = None):
-    mat_filename = os.path.basename(mat_path)
-
-    if not os.path.exists(mat_path):
-        print(f'File {mat_path} could not be found')
-        return None
+    """Load a .mat file with supported extensions (mat, npz, npy).
     
-    if mat_filename.endswith('.mat'):
-        val = scipy.io.loadmat(mat_path)[key]
-    elif mat_filename.endswith('.npz'):
-        val = np.load(mat_path, allow_pickle=True)[key]
-    elif mat_filename.endswith('.npy'):
-        val = np.load(mat_path)
-    else:
-        raise Exception(f'Unrecognized file format: {mat_filename}')
-    return val
+    This function tries to load a .mat file with supported extensions (mat, npz, npy).
+    If the file is not found, it raises an exception.
+    
+    Args:
+        mat_path: Path to the .mat file
+    """
+
+    # Try each supported format by replacing extension (mat, npz, npy)
+    supported_formats = ['.mat', '.npz', '.npy']
+    base_path = os.path.splitext(mat_path)[0]
+
+    for fmt in supported_formats:
+        try_path = base_path + fmt
+        if os.path.exists(try_path):
+            if fmt == '.mat':
+                return scipy.io.loadmat(try_path)[key]
+            elif fmt == '.npz':
+                return np.load(try_path, allow_pickle=True)[key]
+            elif fmt == '.npy':
+                return np.load(try_path)
+
+    print(f'No supported format found for {mat_path}. ' \
+          f'Supported formats are: {supported_formats}')
+    return None
 
 # ============================================================================
 # Dictionary and Data Structure Utilities
