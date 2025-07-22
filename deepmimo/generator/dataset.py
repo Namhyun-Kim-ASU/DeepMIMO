@@ -834,7 +834,7 @@ class Dataset(DotDict):
 
     def _compute_max_paths(self) -> int:
         """Compute the maximum number of paths for any user."""
-        return np.nanmax(self.num_paths).astype(int)
+        return int(np.nanmax(self.num_paths))
     
     def _compute_max_interactions(self) -> int:
         """Compute the maximum number of interactions for any path of any user."""
