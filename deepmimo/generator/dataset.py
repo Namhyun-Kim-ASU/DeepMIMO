@@ -297,8 +297,6 @@ class Dataset(DotDict):
 
         self.set_channel_params(params)
 
-        np.random.seed(1001)
-        
         # Compute array response product
         array_response_product = self._compute_array_response_product()
         
