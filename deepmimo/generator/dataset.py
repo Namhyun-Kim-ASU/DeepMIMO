@@ -521,6 +521,17 @@ class Dataset(DotDict):
         if rx_ant_params is None:
             rx_ant_params = self.ch_params.ue_antenna
             
+        # Transform BS antenna rotation if needed
+        bs_rotation = tx_ant_params[c.PARAMSET_ANT_ROTATION]
+        if len(bs_rotation.shape) == 2 and bs_rotation.shape[0] == 3 and bs_rotation.shape[1] == 2:
+            # Generate random rotations for BS
+            bs_rotation = np.random.uniform(
+                bs_rotation[:, 0],
+                bs_rotation[:, 1],
+                (3,)
+            )
+            self.ch_params.bs_antenna[c.PARAMSET_ANT_ROTATION] = bs_rotation
+            
         # Transform UE antenna rotation if needed
         ue_rotation = rx_ant_params[c.PARAMSET_ANT_ROTATION]
         if len(ue_rotation.shape) == 1 and ue_rotation.shape[0] == 3:
@@ -533,10 +544,11 @@ class Dataset(DotDict):
                 ue_rotation[:, 1],
                 (self.n_ue, 3)
             )
-            
+            self.ch_params.ue_antenna[c.PARAMSET_ANT_ROTATION] = ue_rotation
+
         # Rotate angles for all users at once
         aod_theta_rot, aod_phi_rot = _rotate_angles_batch(
-            rotation=tx_ant_params[c.PARAMSET_ANT_ROTATION],
+            rotation=bs_rotation,
             theta=self[c.AOD_EL_PARAM_NAME],
             phi=self[c.AOD_AZ_PARAM_NAME])
         
