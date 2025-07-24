@@ -173,8 +173,25 @@ def _process_paths_batch(paths_dict: Dict, data: Dict, t: int,
         if sionna_v1:
             # For Sionna v1, types is (max_depth, n_rx, n_tx, max_paths)
             # We need to get (n_paths, max_depth) for the current rx/tx pair
-            path_types = types[:, rel_rx_idx, tx_idx, path_idxs].swapaxes(0,1)
-            inter_types = _transform_interaction_types(path_types)
+            
+            # Safely handle path_idxs that may exceed available types
+            max_available_paths = types.shape[3]
+            # Only use path indices that are within the available range
+            valid_path_idxs = path_idxs[path_idxs < max_available_paths]
+            
+            if len(valid_path_idxs) > 0:
+                path_types = types[:, rel_rx_idx, tx_idx, valid_path_idxs].swapaxes(0,1)
+                inter_types = _transform_interaction_types(path_types)
+                
+                # If we have fewer valid paths than requested, pad the result with zeros
+                if len(valid_path_idxs) < len(path_idxs):
+                    # Create zero-filled array for missing paths
+                    missing_paths = len(path_idxs) - len(valid_path_idxs)
+                    zero_inter_types = np.zeros(missing_paths, dtype=inter_types.dtype)
+                    inter_types = np.concatenate([inter_types, zero_inter_types])
+            else:
+                # No valid paths available, use zeros
+                inter_types = np.zeros(len(path_idxs), dtype=np.int32)
         else:
             inter_types = _get_sionna_interaction_types(types[path_idxs], inter_pos_rx)
         
@@ -231,8 +248,32 @@ def _transform_interaction_types(types: np.ndarray) -> np.ndarray:
             # Take all interactions up to the last non-zero
             valid_interactions = path[: non_zero_indices[-1] + 1]
             # Convert to string and remove any zeros
-            interaction_str = ''.join(str(int(x)) for x in valid_interactions if x != 0)
-            result[i] = float(interaction_str)
+            # Convert numpy array elements to scalars safely
+            interaction_list = []
+            for x in valid_interactions:
+                # Convert to numpy array first to handle all cases uniformly
+                x_array = np.asarray(x)
+                
+                # Extract scalar value safely
+                if x_array.size == 1:
+                    val = x_array.item()
+                elif x_array.size == 0:
+                    continue  # Skip empty arrays
+                else:
+                    # Take first element if array has multiple elements
+                    val = x_array.flat[0]
+                
+                # Convert to basic Python types and check if non-zero
+                val = float(val)
+                if val != 0.0:
+                    interaction_list.append(str(int(val)))
+            
+            interaction_str = ''.join(interaction_list)
+            # Handle empty string case (all interactions were zero)
+            if interaction_str:
+                result[i] = float(interaction_str)
+            else:
+                result[i] = 0.0  # Default value for no valid interactions
             
     return result
 
